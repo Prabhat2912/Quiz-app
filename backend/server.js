@@ -24,17 +24,20 @@ app.use("/api/reports", reportRoute)
 
 app.use(express.urlencoded({ extended: true }))
 const _dirname = path.resolve();
-app.use(express.static(path.join(_dirname, "../frontend/build")));
-app.get("*", (req, res) => {
-    res.sendFile(path.join(_dirname, "../frontend/build/index.html"))
-});
+// app.use(express.static(path.join(_dirname, "../frontend/build")));
+// app.get("*", (req, res) => {
+//     res.sendFile(path.join(_dirname, "../frontend/build/index.html"))
+// });
 
 app.use((err, req, res, next) => {
     res.status(500).send({ message: err.message });
 })
 
+app.get('/api/status', (req, res) => {
+    res.send({ message: "Server is running!" });
+});
 
-
-app.listen(port, () => {
+app.listen(port, (req, res) => {
+    // res.send({ message: "Server is running" })
     console.log(`Server is running on PORT: ${port}`)
 })
