@@ -13,8 +13,8 @@ function WriteExam() {
   const [questions, setQuestions] = useState([])
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0)
   const [selectedOptions, setSelectedOptions] = useState({})
-  const [submitted, setSubmitted] = useState(false) // Track if the answer is submitted
-  const [currentAnswerResult, setCurrentAnswerResult] = useState(null) // To store result for each question
+  const [submitted, setSubmitted] = useState(false)
+  const [currentAnswerResult, setCurrentAnswerResult] = useState([])
   const [result, setResult] = useState()
   const { id } = useParams()
   const dispatch = useDispatch()
@@ -50,12 +50,17 @@ function WriteExam() {
       let wrongAnswers = [];
 
       questions.forEach((question, index) => {
-        if (question.correctOption === selectedOptions[index]) {
+        const selected = selectedOptions[index] || [];
+        const correct = question.correctOptions || [question.correctOption];
+        const isCorrect = correct.every(option => selected.includes(option)) && selected.length === correct.length;
+
+        if (isCorrect) {
           correctAnswers.push(question);
         } else {
           wrongAnswers.push(question);
         }
       })
+
       let verdict = "Pass";
       if (correctAnswers.length < examData.passingMarks) {
         verdict = "Fail";
@@ -110,12 +115,28 @@ function WriteExam() {
     }
   }, [])
 
-
   const handleAnswerSubmit = () => {
     setSubmitted(true);
     const currentQuestion = questions[selectedQuestionIndex];
-    const isCorrect = currentQuestion.correctOption === selectedOptions[selectedQuestionIndex];
+    const selected = selectedOptions[selectedQuestionIndex] || [];
+    const correct = currentQuestion.correctOptions || [currentQuestion.correctOption];
+    const isCorrect = correct.every(option => selected.includes(option)) && selected.length === correct.length;
     setCurrentAnswerResult(isCorrect ? 'Correct' : 'Incorrect');
+  };
+
+  const toggleOption = (index, option) => {
+    const currentSelected = selectedOptions[index] || [];
+    if (currentSelected.includes(option)) {
+      setSelectedOptions({
+        ...selectedOptions,
+        [index]: currentSelected.filter(opt => opt !== option)
+      });
+    } else {
+      setSelectedOptions({
+        ...selectedOptions,
+        [index]: [...currentSelected, option]
+      });
+    }
   };
 
   return (
@@ -148,12 +169,11 @@ function WriteExam() {
             <div className='flex flex-col gap-2'>
 
               {Object.keys(questions[selectedQuestionIndex].options).map((option, index) => {
-                const isSelected = selectedOptions[selectedQuestionIndex] === option;
-                const isCorrectOption = questions[selectedQuestionIndex].correctOption === option;
+                const isSelected = (selectedOptions[selectedQuestionIndex] || []).includes(option);
+                const isCorrectOption = (questions[selectedQuestionIndex].correctOptions || [questions[selectedQuestionIndex].correctOption]).includes(option);
 
                 let optionClasses = "flex items-center p-2 rounded border cursor-pointer transition duration-200";
                 if (!submitted) {
-
                   if (isSelected) {
                     optionClasses += " bg-gray-200 border-gray-400";
                   }
@@ -176,7 +196,7 @@ function WriteExam() {
                     key={index}
                     onClick={() => {
                       if (!submitted) {
-                        setSelectedOptions({ ...selectedOptions, [selectedQuestionIndex]: option });
+                        toggleOption(selectedQuestionIndex, option);
                       }
                     }}
                   >
@@ -191,9 +211,12 @@ function WriteExam() {
 
             {currentAnswerResult ? (
               <div className='flex flex-col items-center'>
-                <h1 className={`text-xl font-bold ${currentAnswerResult === 'Correct' ? 'text-green-600' : 'text-red-600'}`}>
-                  {currentAnswerResult} Answer
-                </h1>
+                {currentAnswerResult && (
+                  <h1 className={`text-xl font-bold ${currentAnswerResult === 'Correct' ? 'text-green-600' : 'text-red-600'}`}>
+                    {currentAnswerResult} Answer
+                  </h1>
+                )}
+
                 {selectedQuestionIndex < questions.length - 1 &&
                   <button className='bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition'
                     onClick={() => {
@@ -263,18 +286,18 @@ function WriteExam() {
           </div>
         }
 
-
         {view === "review" && result &&
           <div className='flex flex-col gap-4 mt-4'>
             {questions.map((question, index) => {
-              const isSelected = selectedOptions[index];
-              const isCorrect = question.correctOption === isSelected;
+              const selected = selectedOptions[index] || [];
+              const correct = question.correctOptions || [question.correctOption];
+              const isCorrect = correct.every(option => selected.includes(option)) && selected.length === correct.length;
 
               return (
                 <div key={index} className={`flex flex-col p-4 border rounded ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
                   <h1 className='text-lg font-semibold'>{index + 1} : {question.name}</h1>
-                  <h1 className='text-md'>Submitted Answer : {isSelected || "N/A"}</h1>
-                  <h1 className='text-md'>Correct Answer : {question.correctOption}</h1>
+                  <h1 className='text-md'>Submitted Answer : {selected.join(', ') || "N/A"}</h1>
+                  <h1 className='text-md'>Correct Answer : {correct.join(', ')}</h1>
                 </div>
               )
             })}
@@ -286,12 +309,11 @@ function WriteExam() {
                   setSelectedOptions({});
                   setTimeUp(false);
                   setSecondsLeft(examData.duration);
-                }}
-              >
-                Retake Exam
-              </button>
-              <button className='bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition'
-                onClick={() => {
+                  setSubmitted(false);
+                  setCurrentAnswerResult(null);
+                  setTimeUp(false);
+                  setSecondsLeft(examData.duration);
+                  navigate("/");
                   navigate("/");
                 }}
               >
