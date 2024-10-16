@@ -41,7 +41,7 @@ function HomePage() {
         {exams && exams.map((exam, index) => {
           return (
             <Col span={6} key={index}>
-              <div className='card-lg flex flex-col gap-1 p-2'>
+              <div className='card-lg min-w-[200px] flex flex-col gap-1 p-2'>
                 <h1 className='text-2xl'>
                   {exam.name}
                 </h1>
