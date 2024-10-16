@@ -209,13 +209,12 @@ function WriteExam() {
 
             </div>
 
-            {currentAnswerResult ? (
+            {submitted ? (
               <div className='flex flex-col items-center'>
-                {currentAnswerResult && (
-                  <h1 className={`text-xl font-bold ${currentAnswerResult === 'Correct' ? 'text-green-600' : 'text-red-600'}`}>
-                    {currentAnswerResult} Answer
-                  </h1>
-                )}
+
+                <h1 className={`text-xl font-bold ${currentAnswerResult === 'Correct' ? 'text-green-600' : 'text-red-600'}`}>
+                  {currentAnswerResult} Answer
+                </h1>
 
                 {selectedQuestionIndex < questions.length - 1 &&
                   <button className='bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition'
