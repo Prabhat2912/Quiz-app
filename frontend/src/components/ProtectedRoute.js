@@ -128,19 +128,19 @@ function ProtectedRoute({ children }) {
     }
   }
   return (
-    user && <div className='p-1 border h-[100vh]'>
-      <div className='flex transition-all duration-300 ease-in-out '>
-        <div className={`sidebar ${collapsed ? "w-20" : "w-64"}  p-2.5  text-white h-[100vh]  flex flex-col items-center justify-start`}>
+    user && <div className=' border h-[100%] '>
+      <div className='flex  '>
+        <div className={`sidebar ${collapsed ? "w-20" : "w-64"} transition-all duration-300 ease-linear border-r border-gray-400  p-2.5  text-white h-[100vh]    flex flex-col items-center justify-start`}>
 
           <div className={` ${collapsed ? "justify-center" : "justify-end"} cursor-pointer items-end w-full flex  `}>
             {!collapsed && <i className="ri-close-line text-2xl flex items-center"
               onClick={() => setCollapsed(true)}></i>}
             {collapsed && <i className="ri-menu-2-line text-2xl flex items-center" onClick={() => setCollapsed(false)}></i>}
           </div>
-          <div className='flex justify-center flex-col gap-1 mt-8'>
+          <div className='flex justify-center flex-col gap-1  mt-8'>
             {menu.map((item, index) => {
               return (
-                <div className={`flex items-center p-2 justify-center gap-4 m-1 cursor-pointer transition-transform  duration-300 ease-in-out ${getIsActiveOrNot(item.paths) && "px-4 py-3 border-2 border-white  rounded-md"}`} key={index} onClick={item.onClick}>
+                <div className={`flex items-center p-2 justify-end gap-4 m-1  cursor-pointer transition-all duration-50 ease-in-out ${getIsActiveOrNot(item.paths) && "px-4 py-3 border-2 border-white  rounded-md"}`} key={index} onClick={item.onClick}>
                   {item.icon}
                   {!collapsed && <span>{item.title}</span>}
                 </div>
@@ -162,7 +162,7 @@ function ProtectedRoute({ children }) {
               <span>Role : {(user?.isAdmin) ? "Admin" : "User"}</span>
             </div>
           </div>
-          <div className='p-4'>
+          <div className='p-4 overflow-y-auto bg-gray-200 h-full '>
             {children}
           </div>
         </div>

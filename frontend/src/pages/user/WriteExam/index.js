@@ -44,6 +44,9 @@ function WriteExam() {
     }
   }
 
+  const progress = ((selectedQuestionIndex + 1) / questions.length) * 100;
+
+
   const calculateResult = async () => {
     try {
       let correctAnswers = [];
@@ -113,7 +116,7 @@ function WriteExam() {
     if (id) {
       getExamDataById(id)
     }
-  }, [])
+  },)
 
   const handleAnswerSubmit = () => {
     setSubmitted(true);
@@ -141,7 +144,7 @@ function WriteExam() {
 
   return (
     examData && (
-      <div className='mt-2'>
+      <div className='mt-2 '>
         <div className='divider'></div>
         <h1 className='text-center text-3xl font-bold'>{examData.name}</h1>
         <div className='divider'></div>
@@ -157,7 +160,16 @@ function WriteExam() {
         }
 
         {(view === "questions" && questions.length > 0) &&
-          <div className='flex flex-col gap-4 mt-4'>
+
+
+          <div className='flex flex-col gap-4 mt-4  '>
+            <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+              <div
+                className="bg-blue-600 h-4 rounded-full transition-all duration-300 ease-linear"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
             <div className='flex justify-between'>
               <h1 className='text-2xl font-semibold'>
                 {selectedQuestionIndex + 1} : {questions[selectedQuestionIndex].name}  {questions[selectedQuestionIndex]?.correctOptions?.length > 1 && <span className='text-md text-red-500'>Multiple Correct</span>}

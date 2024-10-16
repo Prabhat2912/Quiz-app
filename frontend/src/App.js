@@ -20,26 +20,28 @@ import Loader from './components/Loader';
 import { useSelector } from 'react-redux';
 import WriteExam from './pages/user/WriteExam';
 import AdminReportsPage from './pages/admin/Reports';
+import Leaderboard from './pages/admin/Leaderboard';
 
 function App() {
-  const {loading} = useSelector(state=>state.loaders)
+  const { loading } = useSelector(state => state.loaders)
   return (
     <>
-      {loading&&<Loader/>}
+      {loading && <Loader />}
       <Router>
-      <Routes>
-        <Route path="/login" element={<PublicRoute><LoginPage/></PublicRoute>}/>
-        <Route path="/register" element={<PublicRoute><RegisterPage/></PublicRoute>}/>
-        <Route path="/" element={<ProtectedRoute><HomePage/></ProtectedRoute>}/>
-        <Route path="/admin/exams" element={<ProtectedRoute><ExamsPage/></ProtectedRoute>}/>
-        <Route path="/admin/exams/add" element={<ProtectedRoute><AddEditExam/></ProtectedRoute>}/>
-        <Route path="/admin/exams/edit/:id" element={<ProtectedRoute><AddEditExam/></ProtectedRoute>}/>
-        <Route path="/user/reports" element={<ProtectedRoute><ReportsPage/></ProtectedRoute>}/>
-        <Route path="/admin/reports" element={<ProtectedRoute><AdminReportsPage/></ProtectedRoute>}/>
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage/></ProtectedRoute>}/>
-        <Route path="/user/write-exam/:id" element={<ProtectedRoute><WriteExam/></ProtectedRoute>}/>
-      </Routes>
-    </Router>
+        <Routes>
+          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/admin/exams" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
+          <Route path="/admin/exams/add" element={<ProtectedRoute><AddEditExam /></ProtectedRoute>} />
+          <Route path="/admin/exams/edit/:id" element={<ProtectedRoute><AddEditExam /></ProtectedRoute>} />
+          <Route path="/user/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+          <Route path="/admin/reports" element={<ProtectedRoute><AdminReportsPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/user/write-exam/:id" element={<ProtectedRoute><WriteExam /></ProtectedRoute>} />
+          <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+        </Routes>
+      </Router>
     </>
   );
 }
