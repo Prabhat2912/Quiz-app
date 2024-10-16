@@ -160,7 +160,7 @@ function WriteExam() {
           <div className='flex flex-col gap-4 mt-4'>
             <div className='flex justify-between'>
               <h1 className='text-2xl font-semibold'>
-                {selectedQuestionIndex + 1} : {questions[selectedQuestionIndex].name}
+                {selectedQuestionIndex + 1} : {questions[selectedQuestionIndex].name}  {questions[selectedQuestionIndex]?.correctOptions?.length > 1 && <span className='text-md text-red-500'>Multiple Correct</span>}
               </h1>
               <div className='text-xl font-medium'>
                 <span>{secondsLeft} seconds left</span>
@@ -239,11 +239,15 @@ function WriteExam() {
                 }
               </div>
             ) : (
-              <button className='bg-green-500 text-white px-4 py-2 rounded mt-4 hover:bg-green-600 transition'
-                onClick={handleAnswerSubmit}
-              >
-                Submit Answer
-              </button>
+
+              <div className='w-full flex justify-center items-center' >
+                <button className='bg-green-500 w-40 text-white px-4 py-2 rounded mt-4 hover:bg-green-600 transition'
+                  onClick={handleAnswerSubmit}
+                >
+                  Submit Answer
+                </button>
+
+              </div>
             )}
           </div>
         }

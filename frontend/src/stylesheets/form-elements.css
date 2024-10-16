@@ -1,40 +1,41 @@
-input, select{
-    height: 40px;
-    padding: 10px 20px;
-    border: 2px solid #ccc;
-    width: 100%;
+input,
+select {
+  height: 40px;
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  width: 100%;
 }
 
-.primary-contained-btn{
-    background-color: var(--primary);
-    color: white;
-    padding: 10px 20px;
-    cursor: pointer;
+.primary-contained-btn {
+  background-color: var(--primary);
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 2px solid var(--primary) !important;
 }
 
-.primary-contained-btn:hover{
-    background-color: white;
-    color: var(--primary);
-    border: 2px solid var(--primary) !important;
-    padding: 10px;
-    border-radius: 2px;
+.primary-contained-btn:hover {
+  background-color: white;
+  color: var(--primary);
+
+  border-radius: 5px;
 }
 
-.primary-outlined-btn{
-    background-color: white;
-    color: var(--primary);
-    border: 2px solid var(--primary) !important;
-    padding: 10px;
-    border-radius: 2px;
-    cursor: pointer;
+.primary-outlined-btn {
+  background-color: white;
+  color: var(--primary);
+  border: 2px solid var(--primary) !important;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.primary-outlined-btn:hover{
-    background-color: var(--primary);
-    color: white;
-    padding: 10px 20px;
+.primary-outlined-btn:hover {
+  background-color: var(--primary);
+  color: white;
 }
 
-.ant-form-item{
-    margin-bottom: 5px !important;
+.ant-form-item {
+  margin-bottom: 5px !important;
 }
