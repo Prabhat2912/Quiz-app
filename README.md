@@ -10,6 +10,9 @@
 * Live Result Functionality after writting the exams.
 * Storing the results into Mongo DB.
 * Separate Reports / Analatics functionality for both Admin and User.
+* A leaderboard too for admin only
+* A light/dark theme switch
+* Questions with multiple correct Answers too
 
 ## Tech Stack Used:
 #### Front-End:
