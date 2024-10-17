@@ -32,7 +32,7 @@ quiz-app/ ├── frontend/ # React app ├── backend/ # Node.js backend �
 ### Step 1: Clone the repository
 
 ```bash
-git clone https://github.com/your-username/quiz-app.git
+git clone https://github.com/Prabhat2912/Quiz-app.git
 cd quiz-app
 ```
 ### Step 2: Install dependencies
