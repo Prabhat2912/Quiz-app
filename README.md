@@ -33,7 +33,6 @@ quiz-app/ ├── frontend/ # React app ├── backend/ # Node.js backend �
 
 ```bash
 git clone https://github.com/Prabhat2912/Quiz-app.git
-cd quiz-app
 ```
 ### Step 2: Install dependencies
 This project uses npm workspaces. To install dependencies for both frontend and backend, run:
