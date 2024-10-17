@@ -151,7 +151,7 @@ function ProtectedRoute({ children }) {
           </div>
         </div>
         <div className='w-full overflow-y-scroll'>
-          <div className=' w-full fixed top-0   right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between'>
+          <div className=' w-full fixed top-0   z-[10000] right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between'>
 
             <h1 className='text-2xl text-white flex items-center'>
               Quiz App
