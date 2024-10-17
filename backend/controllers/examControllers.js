@@ -1,7 +1,7 @@
 const Exam = require("../models/examModel")
 const User = require("../models/userModel")
 const Question = require('../models/questionModel')
-
+const mongoose = require('mongoose');
 const addExam = async (req, res) => {
   try {
     const user = await User.findOne({
@@ -231,41 +231,56 @@ const editQuestionInExam = async (req, res) => {
   }
 }
 
+
+
 const deleteQuestionFromExam = async (req, res) => {
   try {
-    const user = await User.findById(req.body.userid)
+
+    const { questionId, userid } = req.body;
+    console.log(questionId, 'questionId Backend');
+    console.log(userid, 'userid Backend');
+    if (!mongoose.Types.ObjectId.isValid(req.body.questionId)) {
+      return res.send({
+        message: "Invalid question ID",
+        success: false
+      });
+    }
+
+    const user = await User.findById(req.body.userid);
     if (user.isAdmin) {
-      // delete question from the questions collection 
       const question = await Question.findOne({ _id: req.body.questionId });
-      await question.delete()
-      // delete question in exam
-      const exam = await Exam.findOne({ _id: req.params.id })
-      const questions = exam.questions
-      exam.questions = questions.filter((question) => {
-        if (question._id != req.body.questionId) {
-          return question._id != req.body.questionId
-        }
-      })
-      await exam.save()
+
+      if (!question) {
+        return res.send({
+          message: "Question not found",
+          success: false
+        });
+      }
+
+      await question.delete();
+
+      const exam = await Exam.findOne({ _id: req.params.id });
+      exam.questions = exam.questions.filter(q => q._id != req.body.questionId);
+      await exam.save();
+
       res.send({
         message: "Selected question deleted successfully",
         success: true
-      })
-    }
-    else {
+      });
+    } else {
       res.send({
         message: "Question cannot be deleted.",
         success: false
-      })
+      });
     }
-  }
-  catch (error) {
+  } catch (error) {
     res.send({
       message: error.message,
       data: error,
       success: false
-    })
+    });
   }
-}
+};
+
 
 module.exports = { addExam, getAllExams, getExamById, editExam, deleteExam, addQuestionToExam, editQuestionInExam, deleteQuestionFromExam }

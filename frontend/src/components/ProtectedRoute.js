@@ -6,13 +6,15 @@ import { SetUser } from '../redux/usersSlice'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { HideLoading, ShowLoading } from '../redux/loaderSlice'
+import ThemeBtn from './ThemeBtn'
+
 
 function ProtectedRoute({ children }) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const user = useSelector(state => state.users.user)
   const [menu, setMenu] = useState([]);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const userMenu = [
     {
       title: "Home",
@@ -128,9 +130,9 @@ function ProtectedRoute({ children }) {
     }
   }
   return (
-    user && <div className=' border h-[100%] '>
-      <div className='flex  '>
-        <div className={`sidebar ${collapsed ? "w-20" : "w-64"}  transition-all duration-300 ease-linear border-r border-gray-400  p-2.5  text-white h-[100vh]  flex flex-col items-center justify-start`}>
+    user && <div className=' border h-[100vh] overflow-hidden '>
+      <div className='flex h-[100%]   '>
+        <div className={` ${collapsed ? "w-20" : "w-64"}  bg-[#0F3460] dark:bg-black overflow-hidden transition-all duration-200 ease-linear border-r border-gray-400  p-2.5  text-white h-[100vh]  flex flex-col items-center justify-start`}>
 
           <div className={` ${collapsed ? "justify-center" : "justify-end"} cursor-pointer items-end w-full flex  `}>
             {!collapsed && <i className="ri-close-line text-2xl flex items-center"
@@ -148,8 +150,8 @@ function ProtectedRoute({ children }) {
             })}
           </div>
         </div>
-        <div className='w-full'>
-          <div className='header flex justify-between'>
+        <div className='w-full overflow-y-scroll'>
+          <div className=' w-full p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between'>
 
             <h1 className='text-2xl text-white flex items-center'>
               Quiz App
@@ -161,8 +163,11 @@ function ProtectedRoute({ children }) {
               </div>
               <span>Role : {(user?.isAdmin) ? "Admin" : "User"}</span>
             </div>
+            <div>
+              <ThemeBtn />
+            </div>
           </div>
-          <div className='p-4 overflow-y-auto bg-gray-200 h-full '>
+          <div className=' overflow-y-scroll p-4  bg-gray-200 min-h-full '>
             {children}
           </div>
         </div>

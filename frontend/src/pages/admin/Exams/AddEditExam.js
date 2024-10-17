@@ -3,7 +3,7 @@ import PageTitle from '../../../components/PageTitle';
 import { Form, Row, Col, message, Tabs, Table } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addExam, deleteQuestionFromExam, editExam, getExamById } from '../../../apicalls/exams';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { HideLoading, ShowLoading } from '../../../redux/loaderSlice';
 import AddEditQuestion from './AddEditQuestion';
 
@@ -61,21 +61,25 @@ function AddEditExam() {
          getExamDataById(id)
       }
    }, [])
+   const user = useSelector(state => state.users.user)
    const deleteQuestionById = async (questionId) => {
       try {
          const reqPayload = {
-            questionId: questionId
+            questionId: questionId,
+            userid: user._id
          }
          dispatch(ShowLoading())
          const response = await deleteQuestionFromExam(id, reqPayload)
          dispatch(HideLoading())
          if (response.success) {
             message.success(response.message)
+
             getExamDataById(id)
          }
          else {
             message.error(response.message)
          }
+
       }
       catch (error) {
          dispatch(HideLoading())

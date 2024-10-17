@@ -144,7 +144,7 @@ function WriteExam() {
 
   return (
     examData && (
-      <div className='mt-2 '>
+      <div className='mt-2  h-full   '>
         <div className='divider'></div>
         <h1 className='text-center text-3xl font-bold'>{examData.name}</h1>
         <div className='divider'></div>
@@ -229,7 +229,7 @@ function WriteExam() {
                 </h1>
 
                 {selectedQuestionIndex < questions.length - 1 &&
-                  <button className='bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition'
+                  <button className='bg-blue-500 text-white px-4 py-2 rounded mt-1 hover:bg-blue-600 transition'
                     onClick={() => {
                       setSelectedQuestionIndex(selectedQuestionIndex + 1);
                       setCurrentAnswerResult(null);
