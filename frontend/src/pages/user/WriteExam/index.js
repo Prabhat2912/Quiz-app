@@ -116,7 +116,7 @@ function WriteExam() {
     if (id) {
       getExamDataById(id)
     }
-  },)
+  }, [])
 
   const handleAnswerSubmit = () => {
     setSubmitted(true);
