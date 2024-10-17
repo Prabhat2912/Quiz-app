@@ -182,8 +182,8 @@ function WriteExam() {
               />
             </div>
 
-            <div className='flex justify-between'>
-              <h1 className='text-2xl font-semibold'>
+            <div className='flex flex-wrap justify-between'>
+              <h1 className='text-2xl flex flex-wrap  font-semibold'>
                 {selectedQuestionIndex + 1} : {questions[selectedQuestionIndex].name}  {questions[selectedQuestionIndex]?.correctOptions?.length > 1 && <span className='text-md text-red-500'>Multiple Correct</span>}
               </h1>
               <div className='text-xl font-medium'>
@@ -276,7 +276,7 @@ function WriteExam() {
           </div>
         }
         {view === "result" &&
-          <div className='flex justify-center mt-6 gap-4'>
+          <div className='flex min-w-[250px] justify-center mt-6 gap-4'>
             <div className='flex flex-col gap-4 bg-white p-6 rounded shadow-md'>
               <h1 className='text-2xl font-bold'>Result</h1>
               <div className='flex flex-col gap-2'>

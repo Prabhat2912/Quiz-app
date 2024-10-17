@@ -92,7 +92,7 @@ function ExamsPage() {
         </button>
       </div>
       <div className='divider mt-1'></div>
-      <Table columns={columns} dataSource={exams} />
+      <Table className='min-w-[520px]' columns={columns} dataSource={exams} />
     </>
   )
 }

@@ -79,7 +79,7 @@ function Leaderboard() {
         <div>
             <PageTitle title="Leaderboard" />
             <div className="divider"></div>
-            <Table dataSource={leaderboard} columns={columns} rowKey="rank" />
+            <Table dataSource={leaderboard} columns={columns} className='min-w-[250px]' rowKey="rank" />
         </div>
     );
 }

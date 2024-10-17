@@ -59,7 +59,7 @@ function AddEditQuestion(props) {
   };
 
   return (
-    <Modal title={selectedQuestion ? "Edit Question" : "Add Question"} open={showAddEditQuestionModal} footer={false} onCancel={() => {
+    <Modal className='min-w-[400px]' title={selectedQuestion ? "Edit Question" : "Add Question"} open={showAddEditQuestionModal} footer={false} onCancel={() => {
       setShowAddEditQuestionModal(false);
       setSelectedQuestion();
     }}>

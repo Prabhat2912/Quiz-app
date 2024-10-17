@@ -188,7 +188,7 @@ function AddEditExam() {
                            setShowAddEditQuestionModal(true)
                         }}>Add Question</button>
                   </div>
-                  <Table columns={questionColumns} dataSource={examData?.questions} className="mt-1">
+                  <Table columns={questionColumns} dataSource={examData?.questions} className="mt-1  min-w-[700px] ">
 
                   </Table>
                </Tabs.TabPane>}

@@ -12,7 +12,7 @@ select {
   padding: 10px;
   cursor: pointer;
   border-radius: 5px;
-  border: 2px solid var(--primary) !important;
+  border: 2px solid var(--primary);
 }
 
 .primary-contained-btn:hover {
@@ -25,7 +25,7 @@ select {
 .primary-outlined-btn {
   background-color: white;
   color: var(--primary);
-  border: 2px solid var(--primary) !important;
+  border: 2px solid var(--primary);
   padding: 10px;
   border-radius: 5px;
   cursor: pointer;

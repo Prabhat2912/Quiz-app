@@ -89,8 +89,8 @@ function AdminReportsPage() {
       <PageTitle title="Reports" />
       <div className='divider'></div>
       <div className='flex gap-2 mt-2'>
-        <input type="text" placeholder='Exam' value={filters.examName} onChange={(e) => setFilters({ ...filters, examName: e.target.value })} />
-        <input type="text" placeholder='User' value={filters.userName} onChange={(e) => setFilters({ ...filters, userName: e.target.value })} />
+        <input type="text" placeholder='Exam' className='min-w-[90px]' value={filters.examName} onChange={(e) => setFilters({ ...filters, examName: e.target.value })} />
+        <input type="text" placeholder='User' className='min-w-[90px]' value={filters.userName} onChange={(e) => setFilters({ ...filters, userName: e.target.value })} />
         <button className='primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear rounded-md cursor-pointer' onClick={() => {
           setFilters({
             userName: "",
@@ -107,7 +107,7 @@ function AdminReportsPage() {
           Search
         </button>
       </div>
-      <Table columns={columns} className="mt-2" dataSource={reportsData} />
+      <Table columns={columns} className="mt-2  min-w-[620px]  " dataSource={reportsData} />
     </div>
   )
 }

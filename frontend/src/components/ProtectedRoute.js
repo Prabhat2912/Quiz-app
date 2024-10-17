@@ -130,9 +130,9 @@ function ProtectedRoute({ children }) {
     }
   }
   return (
-    user && <div className=' border h-[100vh] overflow-hidden '>
+    user && <div className=' border h-[100vh] min-w-[340px] overflow-hidden '>
       <div className='flex h-[100%]   '>
-        <div className={` ${collapsed ? "w-20" : "w-64"}  bg-[#0F3460] dark:bg-black overflow-hidden transition-all duration-200 ease-linear border-r border-gray-400  p-2.5  text-white h-[100vh]  flex flex-col items-center justify-start`}>
+        <div className={` ${collapsed ? "w-20" : "w-64"} mt-[56px] bg-[#0F3460] dark:bg-black overflow-hidden transition-all duration-200 ease-linear border-r border-gray-400  p-2.5  text-white h-[100vh]  flex flex-col items-center justify-start`}>
 
           <div className={` ${collapsed ? "justify-center" : "justify-end"} cursor-pointer items-end w-full flex  `}>
             {!collapsed && <i className="ri-close-line text-2xl flex items-center"
@@ -151,7 +151,7 @@ function ProtectedRoute({ children }) {
           </div>
         </div>
         <div className='w-full overflow-y-scroll'>
-          <div className=' w-full p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between'>
+          <div className=' w-full fixed top-0   right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between'>
 
             <h1 className='text-2xl text-white flex items-center'>
               Quiz App
@@ -163,11 +163,11 @@ function ProtectedRoute({ children }) {
               </div>
               <span>Role : {(user?.isAdmin) ? "Admin" : "User"}</span>
             </div>
-            <div>
+            <div className='flex justify-center items-center' >
               <ThemeBtn />
             </div>
           </div>
-          <div className=' overflow-y-scroll p-4  bg-gray-200 min-h-full '>
+          <div className=' overflow-y-scroll p-4 mt-8 bg-gray-200 min-h-full '>
             {children}
           </div>
         </div>
