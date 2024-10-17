@@ -85,7 +85,7 @@ function RegisterPage() {
             </Form.Item>
 
             <div className="flex flex-col gap-2">
-              <button type="submit" className="primary-contained-btn mt-2 w-100">
+              <button type="submit" className="primary-contained-btn dark:bg-black dark:border-black  dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md cursor-pointer mt-2 w-100">
                 Register
               </button>
               <Link to="/login">Already have an account? Login Here</Link>

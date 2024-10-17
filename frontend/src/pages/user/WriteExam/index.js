@@ -128,19 +128,31 @@ function WriteExam() {
   };
 
   const toggleOption = (index, option) => {
+    const correctOptionLength = questions[index].correctOptions?.length || 1; // Default to 1 if correctOptions isn't defined
     const currentSelected = selectedOptions[index] || [];
-    if (currentSelected.includes(option)) {
+
+    if (correctOptionLength === 1) {
+      // If only one option is correct, only allow one selection
       setSelectedOptions({
         ...selectedOptions,
-        [index]: currentSelected.filter(opt => opt !== option)
+        [index]: [option]  // Replace any previous selection with the new one
       });
     } else {
-      setSelectedOptions({
-        ...selectedOptions,
-        [index]: [...currentSelected, option]
-      });
+      // Allow multiple selections for questions with more than one correct option
+      if (currentSelected.includes(option)) {
+        setSelectedOptions({
+          ...selectedOptions,
+          [index]: currentSelected.filter(opt => opt !== option)
+        });
+      } else {
+        setSelectedOptions({
+          ...selectedOptions,
+          [index]: [...currentSelected, option]
+        });
+      }
     }
   };
+
 
   return (
     examData && (
@@ -165,7 +177,7 @@ function WriteExam() {
           <div className='flex flex-col gap-4 mt-4  '>
             <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
               <div
-                className="bg-blue-600 h-4 rounded-full transition-all duration-300 ease-linear"
+                className="bg-blue-600 dark:bg-black h-4 rounded-full transition-all duration-300 ease-linear"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -187,19 +199,19 @@ function WriteExam() {
                 let optionClasses = "flex items-center p-2 rounded border cursor-pointer transition duration-200";
                 if (!submitted) {
                   if (isSelected) {
-                    optionClasses += " bg-gray-200 border-gray-400";
+                    optionClasses += " bg-gray-400 border-gray-400";
                   }
                 }
                 if (submitted) {
                   if (isCorrectOption) {
-                    optionClasses += " bg-green-100 border-green-400";
+                    optionClasses += " dark:bg-gray-400 dark:border-gray-600  bg-green-100 border-green-400";
                   } else if (isSelected && !isCorrectOption) {
-                    optionClasses += " bg-red-100 border-red-400";
+                    optionClasses += " dark:bg-gray-600 dark:border-gray-800 bg-red-100 border-red-400";
                   } else {
                     optionClasses += " border-gray-300";
                   }
                 } else {
-                  optionClasses += " hover:bg-gray-200";
+                  optionClasses += " hover:bg-gray-400 bg-gray-300 hover:border-gray-400 ";
                 }
 
                 return (
@@ -224,12 +236,12 @@ function WriteExam() {
             {submitted ? (
               <div className='flex flex-col items-center'>
 
-                <h1 className={`text-xl font-bold ${currentAnswerResult === 'Correct' ? 'text-green-600' : 'text-red-600'}`}>
+                <h1 className={`text-xl font-bold ${currentAnswerResult === 'Correct' ? 'text-green-600 dark:text-gray-400 ' : 'text-red-600 dark:text-gray-600'}`}>
                   {currentAnswerResult} Answer
                 </h1>
 
                 {selectedQuestionIndex < questions.length - 1 &&
-                  <button className='bg-blue-500 text-white px-4 py-2 rounded mt-1 hover:bg-blue-600 transition'
+                  <button className='bg-blue-500 dark:bg-black dark:hover:bg-black/80 text-white px-4 py-2 rounded mt-1 hover:bg-blue-600 '
                     onClick={() => {
                       setSelectedQuestionIndex(selectedQuestionIndex + 1);
                       setCurrentAnswerResult(null);
@@ -240,7 +252,7 @@ function WriteExam() {
                   </button>
                 }
                 {selectedQuestionIndex === questions.length - 1 &&
-                  <button className='bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition'
+                  <button className='bg-blue-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition'
                     onClick={() => {
                       clearInterval(intervalId);
                       setTimeUp(true);
@@ -253,7 +265,7 @@ function WriteExam() {
             ) : (
 
               <div className='w-full flex justify-center items-center' >
-                <button className='bg-green-500 w-40 text-white px-4 py-2 rounded mt-4 hover:bg-green-600 transition'
+                <button className='bg-green-500 dark:bg-black dark:hover:bg-black/50 w-40 text-white px-4 py-2 rounded mt-4 hover:bg-green-600 transition'
                   onClick={handleAnswerSubmit}
                 >
                   Submit Answer
@@ -275,7 +287,7 @@ function WriteExam() {
                 <h1 className='text-md'>Verdict : {result.verdict}</h1>
               </div>
               <div className='flex gap-4 mt-4'>
-                <button className='bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition'
+                <button className='bg-yellow-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded hover:bg-yellow-600 transition'
                   onClick={() => {
                     setView("instructions");
                     setSelectedQuestionIndex(0);
@@ -288,10 +300,10 @@ function WriteExam() {
                 >
                   Retake Exam
                 </button>
-                <button className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition' onClick={() => setView("review")}>
+                <button className='bg-blue-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded hover:bg-blue-600 transition' onClick={() => setView("review")}>
                   Review Answers
                 </button>
-                <button className='bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition'
+                <button className='bg-gray-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded hover:bg-gray-600 transition'
                   onClick={() => navigate("/")}
                 >
                   Close
@@ -309,7 +321,7 @@ function WriteExam() {
               const isCorrect = correct.every(option => selected.includes(option)) && selected.length === correct.length;
 
               return (
-                <div key={index} className={`flex flex-col p-4 border rounded ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
+                <div key={index} className={`flex flex-col p-4 border rounded ${isCorrect ? 'bg-green-100 dark:bg-gray-400 ' : 'bg-red-100 dark:bg-gray-600  '}`}>
                   <h1 className='text-lg font-semibold'>{index + 1} : {question.name}</h1>
                   <h1 className='text-md'>Submitted Answer : {selected.join(', ') || "N/A"}</h1>
                   <h1 className='text-md'>Correct Answer : {correct.join(', ')}</h1>

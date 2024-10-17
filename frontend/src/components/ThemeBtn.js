@@ -4,7 +4,7 @@ const ThemeBtn = () => {
     const [theme, setTheme] = useState('light');
 
     useEffect(() => {
-        // Toggle the 'dark' class on body
+
         if (theme === 'dark') {
             document.body.classList.add('dark');
         } else {

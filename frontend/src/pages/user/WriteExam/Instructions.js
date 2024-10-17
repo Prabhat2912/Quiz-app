@@ -40,12 +40,12 @@ function Instructions(props) {
 
       </ul>
       <div className='flex gap-2'>
-        <button className='primary-outlined-btn'
+        <button className='primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear rounded-md cursor-pointer'
           onClick={() => navigate(-1)}
         >
           Close
         </button>
-        <button className='primary-contained-btn'
+        <button className='primary-contained-btn dark:bg-black dark:border-black  dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md cursor-pointer'
           onClick={() => {
             startTimer();
             setView("questions")

@@ -170,10 +170,10 @@ function AddEditExam() {
                      </Col>
                   </Row>
                   <div className='flex justify-end gap-2'>
-                     <button className='primary-outlined-btn w-15 cursor-pointer' type="submit">
+                     <button className='primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear w-15 cursor-pointer' type="submit">
                         Save
                      </button>
-                     <button className='primary-contained-btn w-15 cursor-pointer'
+                     <button className='primary-contained-btn dark:bg-black dark:border-black  dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md  w-15 cursor-pointer'
                         onClick={() => navigate('/admin/exams')}
                      >
                         Cancel
@@ -182,7 +182,7 @@ function AddEditExam() {
                </Tabs.TabPane>
                {id && <Tabs.TabPane tab="Questions" key="2">
                   <div className='flex justify-end'>
-                     <button className="primary-outlined-btn cursor-pointer"
+                     <button className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear cursor-pointer"
                         type="button"
                         onClick={() => {
                            setShowAddEditQuestionModal(true)

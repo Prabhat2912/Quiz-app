@@ -62,7 +62,7 @@ function HomePage() {
                 <h1 className='text-md'>
                   Duration: {exam.duration}
                 </h1>
-                <button className='primary-outlined-btn rounded-md cursor-pointer'
+                <button className='primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear  rounded-md cursor-pointer'
                   onClick={() => navigate(`/user/write-exam/${exam._id}`)}>
                   Start Exam
                 </button>
