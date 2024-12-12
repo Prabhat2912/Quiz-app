@@ -81,29 +81,35 @@ function ProtectedRoute({ children }) {
   ]
   const getUserData = async () => {
     try {
-      dispatch(ShowLoading())
-      const response = await getUserInfo()
-      dispatch(HideLoading())
+      dispatch(ShowLoading());
+      const response = await getUserInfo();
+      dispatch(HideLoading());
+
       if (response.success) {
-        message.success(response.message)
-        dispatch(SetUser(response.data))
+        message.success(response.message);
+        dispatch(SetUser(response.data));
         if (response.data.isAdmin) {
-          setMenu(adminMenu)
+          setMenu(adminMenu);
+        } else {
+          setMenu(userMenu);
         }
-        else {
-          setMenu(userMenu)
+      } else {
+
+        if (response.message === "jwt expired") {
+          message.error("Session expired. Please log in again.");
+          localStorage.removeItem("token");
+          navigate("/login");
+        } else {
+          message.error(response.message);
         }
       }
-      else {
-        dispatch(HideLoading())
-        message.error(response.message)
-      }
+    } catch (error) {
+      message.error("An error occurred. Redirecting to login.");
+      localStorage.removeItem("token");
+      navigate("/login");
     }
-    catch (error) {
-      message.error(error.message)
-      navigate("/login")
-    }
-  }
+  };
+
   useEffect(() => {
     if (localStorage.getItem('token')) {
       if (!user) {
