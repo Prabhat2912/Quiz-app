@@ -16,7 +16,8 @@ const craEnvVars = Object.keys(process.env)
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    outDir: './dist/frontend'
+    outDir: './dist/frontend',
+    chunkSizeWarningLimit: 1500,
   },
   server: {
     port: 3000,
