@@ -4,11 +4,11 @@
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.6",
-    "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "antd": "^4.23.5",
     "axios": "^1.1.2",
+    "lucide-react": "^0.487.0",
     "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -16,14 +16,14 @@
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
     "redux": "^4.2.0",
-    "web-vitals": "^2.1.4"
+    "remixicon": "^4.6.0"
   },
   "proxy": "https://localhost:5000",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "nx serve",
+    "build": "nx build",
+    "test": "nx test",
+    "dev": "nx serve"
   },
   "eslintConfig": {
     "extends": [
@@ -44,8 +44,21 @@
     ]
   },
   "devDependencies": {
+    "@nx/vite": "20.7.1",
+    "@nx/web": "20.7.1",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/ui": "^3.0.0",
     "autoprefixer": "^10.4.20",
+    "eslint-config-react-app": "^7.0.1",
+    "jest-watch-typeahead": "^2.2.2",
+    "jiti": "2.4.2",
+    "nx": "20.7.1",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.14"
+    "tailwindcss": "^3.4.14",
+    "vite": "^6.2.5",
+    "vitest": "^3.1.1",
+    "web-vitals": "^2.1.4"
   }
 }
