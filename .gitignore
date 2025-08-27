@@ -8,6 +8,11 @@
 # testing
 /coverage
 thingsToDo.txt
+
+# postman collections
+*.postman_collection.json
+Quiz-App-Postman-Collection.json
+
 # production
 /build
 

@@ -22,7 +22,8 @@ const addExam = async (req, res) => {
         await newExam.save()
         res.send({
           message: "Exam added successfully",
-          success: true
+          success: true,
+          data: newExam
         })
       }
     }
