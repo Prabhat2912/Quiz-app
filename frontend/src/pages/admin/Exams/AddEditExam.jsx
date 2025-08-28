@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PageTitle from "../../../components/PageTitle";
 import { Form, Row, Col, message, Tabs, Table } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   addExam,
+  createExamWithAI as createExamWithAIApi, // ✅ renamed import
   deleteQuestionFromExam,
   editExam,
   getExamById,
@@ -20,23 +21,42 @@ function AddEditExam() {
   const [showAddEditQuestionModal, setShowAddEditQuestionModal] =
     useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState();
-  const createExamWithAI = async () => {
+  const [form] = Form.useForm(); // form instance
+
+  // ✅ renamed local function to avoid conflict
+  const handleCreateExamWithAI = async (values) => {
     try {
+      if (
+        !values.name ||
+        !values.category ||
+        !values.duration ||
+        !values.totalMarks ||
+        !values.passingMarks
+      ) {
+        message.error(
+          "Please fill in all exam details before creating with AI"
+        );
+        return;
+      }
+
       dispatch(ShowLoading());
-      let response;
-      response = await createExamWithAI();
+      const response = await createExamWithAIApi(values); // ✅ call correct API
       dispatch(HideLoading());
+
       if (response.success) {
-        message.success(response.message);
+        message.success(
+          `${response.message} (${response.data.questionsCount} questions created)`
+        );
         navigate("/admin/exams");
       } else {
         message.error(response.message);
       }
     } catch (error) {
       dispatch(HideLoading());
-      message.error(error.message);
+      message.error(error.message || "Failed to create exam with AI");
     }
   };
+
   const onFinish = async (values) => {
     try {
       dispatch(ShowLoading());
@@ -58,28 +78,35 @@ function AddEditExam() {
       message.error(error.message);
     }
   };
-  const getExamDataById = async (id) => {
-    try {
-      dispatch(ShowLoading());
-      const response = await getExamById(id);
-      dispatch(HideLoading());
-      if (response.success) {
-        message.success(response.message);
-        setExamData(response.data);
-      } else {
-        message.error(response.message);
+
+  const getExamDataById = useCallback(
+    async (examId) => {
+      try {
+        dispatch(ShowLoading());
+        const response = await getExamById(examId);
+        dispatch(HideLoading());
+        if (response.success) {
+          message.success(response.message);
+          setExamData(response.data);
+        } else {
+          message.error(response.message);
+        }
+      } catch (error) {
+        dispatch(HideLoading());
+        message.error(error.message);
       }
-    } catch (error) {
-      dispatch(HideLoading());
-      message.error(error.message);
-    }
-  };
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
     if (id) {
       getExamDataById(id);
     }
-  }, []);
+  }, [id, getExamDataById]);
+
   const user = useSelector((state) => state.users.user);
+
   const deleteQuestionById = async (questionId) => {
     try {
       const reqPayload = {
@@ -91,7 +118,6 @@ function AddEditExam() {
       dispatch(HideLoading());
       if (response.success) {
         message.success(response.message);
-
         getExamDataById(id);
       } else {
         message.error(response.message);
@@ -101,6 +127,7 @@ function AddEditExam() {
       message.error(error.message);
     }
   };
+
   const questionColumns = [
     {
       title: "Question",
@@ -112,7 +139,7 @@ function AddEditExam() {
       render: (text, record) => {
         return Object.keys(record.options).map((key) => {
           return (
-            <div>
+            <div key={key}>
               {key} : {record.options[key]}
             </div>
           );
@@ -121,15 +148,13 @@ function AddEditExam() {
     },
     {
       title: "Correct Option",
-      dataIndex: "correctOption",
+      dataIndex: "correctOptions", // ✅ fixed: match backend field
       render: (text, record) => {
-        // Check if correctOptions is an array and join them with commas
         const correctOptionsText = Array.isArray(record?.correctOptions)
           ? record.correctOptions
               .map((option) => `${option}. ${record.options[option]}`)
               .join(", ")
-          : ""; // Fallback if not an array
-
+          : "";
         return correctOptionsText;
       },
     },
@@ -157,12 +182,14 @@ function AddEditExam() {
       },
     },
   ];
+
   return (
     <div>
       <PageTitle title={id ? "Edit Exam" : "Add Exam"} />
       <div className="divider"></div>
       {(examData || !id) && (
         <Form
+          form={form}
           layout="vertical"
           onFinish={onFinish}
           initialValues={examData}
@@ -184,10 +211,17 @@ function AddEditExam() {
                 <Col span={8}>
                   <Form.Item label="Category" name="category">
                     <select>
+                      <option value="">Select Category</option>
                       <option value="JavaScript">JavaScript</option>
-                      <option value="Nodejs">Nodejs</option>
+                      <option value="Nodejs">Node.js</option>
                       <option value="React">React</option>
-                      <option value="MongoDb">MongoDb</option>
+                      <option value="MongoDb">MongoDB</option>
+                      <option value="Python">Python</option>
+                      <option value="Java">Java</option>
+                      <option value="HTML">HTML</option>
+                      <option value="CSS">CSS</option>
+                      <option value="SQL">SQL</option>
+                      <option value="DataStructures">Data Structures</option>
                     </select>
                   </Form.Item>
                 </Col>
@@ -203,21 +237,33 @@ function AddEditExam() {
                 </Col>
               </Row>
               <div className="flex justify-end gap-2 mt-4">
-                <button
-                  className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear w-15 cursor-pointer"
-                  type="button"
-                  onClick={createExamWithAI}
-                >
-                  Create With AI
-                </button>
+                {!id && (
+                  <button
+                    className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear w-15 cursor-pointer"
+                    type="button"
+                    onClick={() => {
+                      form
+                        .validateFields()
+                        .then((values) => {
+                          handleCreateExamWithAI(values); // ✅ call renamed function
+                        })
+                        .catch(() => {
+                          message.error("Please fill in all required fields");
+                        });
+                    }}
+                  >
+                    Create With AI
+                  </button>
+                )}
                 <button
                   className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear w-15 cursor-pointer"
                   type="submit"
                 >
-                  Save
+                  {id ? "Update" : "Save"}
                 </button>
                 <button
                   className="primary-contained-btn dark:bg-black dark:border-black  dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md  w-15 cursor-pointer"
+                  type="button"
                   onClick={() => navigate("/admin/exams")}
                 >
                   Cancel
@@ -241,6 +287,7 @@ function AddEditExam() {
                   columns={questionColumns}
                   dataSource={examData?.questions}
                   className="mt-1  min-w-[700px] "
+                  rowKey="_id" // ✅ added to prevent React key warning
                 ></Table>
               </Tabs.TabPane>
             )}
