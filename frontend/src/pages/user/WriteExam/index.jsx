@@ -317,9 +317,7 @@ function WriteExam() {
                 <h1 className="text-md">
                   Passing Marks : {examData.passingMarks}
                 </h1>
-                <h1 className="text-md">
-                  Obtained Marks : {obtainedMarks.toFixed(2)}
-                </h1>
+                <h1 className="text-md">Obtained Marks : {obtainedMarks}</h1>
                 <h1 className="text-md">
                   Wrong Answers : {result.wrongAnswers.length}
                 </h1>
