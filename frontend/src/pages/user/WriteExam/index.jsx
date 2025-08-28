@@ -13,6 +13,7 @@ function WriteExam() {
   const [questions, setQuestions] = useState([]);
   const [totalMarks, setTotalMarks] = useState(0);
   const [passingMarks, setPassingMarks] = useState(0);
+  const [obtainedMarks, setObtainedMarks] = useState(0);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -71,13 +72,14 @@ function WriteExam() {
 
       let verdict = "Pass";
       const correctAnswersCount = correctAnswers.length;
-      const obtainedMarks =
+      const obtainedMark =
         (correctAnswersCount / questions.length) * totalMarks;
-      if (obtainedMarks < passingMarks) {
+      setObtainedMarks(obtainedMark);
+      if (obtainedMark < passingMarks) {
         verdict = "Fail";
       }
       const tempResult = {
-        correctAnswers,
+        obtainedMarks,
         wrongAnswers,
         verdict,
       };
@@ -316,7 +318,7 @@ function WriteExam() {
                   Passing Marks : {examData.passingMarks}
                 </h1>
                 <h1 className="text-md">
-                  Obtained Marks : {result.correctAnswers.length}
+                  Obtained Marks : {obtainedMarks.toFixed(2)}
                 </h1>
                 <h1 className="text-md">
                   Wrong Answers : {result.wrongAnswers.length}
