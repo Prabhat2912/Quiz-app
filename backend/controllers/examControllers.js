@@ -6,10 +6,11 @@ const addExam = async (req, res) => {
   try {
     const user = await User.findOne({
       _id: req.body.userid
-    })
+    }).maxTimeMS(5000)
+
     if (user.isAdmin) {
       //check if exam name already exists
-      const examExists = await Exam.findOne({ name: req.body.name })
+      const examExists = await Exam.findOne({ name: req.body.name }).maxTimeMS(5000)
       if (examExists) {
         res.send({
           message: "Exam already exists",
@@ -29,9 +30,10 @@ const addExam = async (req, res) => {
     }
   }
   catch (error) {
-    res.send({
-      message: error.message,
-      data: error,
+    console.error('Error in addExam:', error);
+    res.status(500).send({
+      message: error.message || "Error adding exam",
+      data: null,
       success: false
     })
   }
@@ -40,25 +42,20 @@ const addExam = async (req, res) => {
 const getAllExams = async (req, res) => {
   try {
     const exam = await Exam.find()
-    if (exam) {
-      res.send({
-        message: "Exams list fetched successfully.",
-        data: exam,
-        success: true
-      })
-    }
-    else {
-      res.send({
-        message: "No exams to display.",
-        data: exam,
-        success: false
-      })
-    }
+      .limit(50) // Limit results to prevent large responses
+      .maxTimeMS(10000) // Add timeout
+
+    res.send({
+      message: exam.length > 0 ? "Exams list fetched successfully." : "No exams to display.",
+      data: exam,
+      success: true
+    })
   }
   catch (error) {
-    res.send({
-      message: error.message,
-      data: error,
+    console.error('Error in getAllExams:', error);
+    res.status(500).send({
+      message: error.message || "Error fetching exams",
+      data: null,
       success: false
     })
   }
@@ -66,7 +63,10 @@ const getAllExams = async (req, res) => {
 
 const getExamById = async (req, res) => {
   try {
-    const exam = await Exam.findById(req.params.id).populate('questions');
+    const exam = await Exam.findById(req.params.id)
+      .populate('questions')
+      .maxTimeMS(15000) // Add timeout for populate query
+
     if (exam) {
       res.send({
         message: "Exam data fetched successfully.",
@@ -75,17 +75,18 @@ const getExamById = async (req, res) => {
       })
     }
     else {
-      res.send({
-        message: "Exam doesnot exists.",
-        data: exam,
+      res.status(404).send({
+        message: "Exam does not exist.",
+        data: null,
         success: false
       })
     }
   }
   catch (error) {
-    res.send({
-      message: error.message,
-      data: error,
+    console.error('Error in getExamById:', error);
+    res.status(500).send({
+      message: error.message || "Error fetching exam",
+      data: null,
       success: false
     })
   }
@@ -94,16 +95,16 @@ const getExamById = async (req, res) => {
 // edit exam by id
 const editExam = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.body.userid })
+    const user = await User.findOne({ _id: req.body.userid }).maxTimeMS(5000)
     if (user.isAdmin) {
-      const exam = await Exam.findOne({ _id: req.params.id })
+      const exam = await Exam.findOne({ _id: req.params.id }).maxTimeMS(5000)
       if (exam) {
         exam.name = req.body.name;
         exam.duration = req.body.duration;
         exam.category = req.body.category;
         exam.totalMarks = req.body.totalMarks;
         exam.passingMarks = req.body.passingMarks;
-        exam.save()
+        await exam.save()
         res.send({
           message: "Exam details edited successfully.",
           data: exam,
@@ -111,15 +112,15 @@ const editExam = async (req, res) => {
         })
       }
       else {
-        res.send({
-          message: "Exam doesn't exists.",
+        res.status(404).send({
+          message: "Exam doesn't exist.",
           data: null,
           success: false
         })
       }
     }
     else {
-      res.send({
+      res.status(403).send({
         message: "Cannot Update Exam Details.",
         data: null,
         success: false
@@ -127,9 +128,10 @@ const editExam = async (req, res) => {
     }
   }
   catch (error) {
-    res.send({
-      message: error.message,
-      data: error,
+    console.error('Error in editExam:', error);
+    res.status(500).send({
+      message: error.message || "Error editing exam",
+      data: null,
       success: false
     })
   }
@@ -137,11 +139,11 @@ const editExam = async (req, res) => {
 
 const deleteExam = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.body.userid })
+    const user = await User.findOne({ _id: req.body.userid }).maxTimeMS(5000)
     if (user.isAdmin) {
-      const exam = await Exam.findOne({ _id: req.params.id })
+      const exam = await Exam.findOne({ _id: req.params.id }).maxTimeMS(5000)
       if (exam) {
-        exam.delete()
+        await exam.deleteOne() // Use deleteOne instead of delete
         res.send({
           message: "Selected exam deleted successfully.",
           data: null,
@@ -149,15 +151,15 @@ const deleteExam = async (req, res) => {
         })
       }
       else {
-        res.send({
-          message: "Exam doesn't exists.",
+        res.status(404).send({
+          message: "Exam doesn't exist.",
           data: null,
           success: false
         })
       }
     }
     else {
-      res.send({
+      res.status(403).send({
         message: "Cannot Delete Exam.",
         data: null,
         success: false
@@ -165,9 +167,10 @@ const deleteExam = async (req, res) => {
     }
   }
   catch (error) {
-    res.send({
-      message: error.message,
-      data: error,
+    console.error('Error in deleteExam:', error);
+    res.status(500).send({
+      message: error.message || "Error deleting exam",
+      data: null,
       success: false
     })
   }

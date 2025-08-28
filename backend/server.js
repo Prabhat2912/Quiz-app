@@ -40,11 +40,37 @@ const _dirname = path.resolve();
 // });
 
 app.use((err, req, res, next) => {
-    res.status(500).send({ message: err.message });
+    console.error('Server error:', err);
+
+    if (err.timeout) {
+        res.status(408).json({
+            message: "Request timeout",
+            success: false,
+            error: "TIMEOUT"
+        });
+    } else {
+        res.status(500).json({
+            message: err.message || "Internal server error",
+            success: false
+        });
+    }
 })
 
+// Handle timeout specifically
+app.use((req, res, next) => {
+    if (req.timedout) {
+        res.status(408).json({
+            message: "Request timeout - please try again",
+            success: false,
+            error: "TIMEOUT"
+        });
+    } else {
+        next();
+    }
+});
+
 app.get('/api/status', (req, res) => {
-    res.send({ message: "Server is running!" });
+    res.send({ message: "Server is running!", success: true });
 });
 
 app.listen(port, (req, res) => {

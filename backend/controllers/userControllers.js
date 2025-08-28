@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 // User Registration
 const register = async (req, res) => {
     try {
-        const userExists = await User.findOne({ email: req.body.email });
+        const userExists = await User.findOne({ email: req.body.email }).maxTimeMS(5000);
         if (userExists) {
             return res.status(409).send({
                 message: "User already exists.",
@@ -29,9 +29,10 @@ const register = async (req, res) => {
             success: true,
         });
     } catch (error) {
+        console.error('Error in register:', error);
         res.status(500).send({
             message: "Error registering user",
-            data: error,
+            data: null,
             success: false,
         });
     }
@@ -40,7 +41,7 @@ const register = async (req, res) => {
 // User Login
 const login = async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.body.email });
+        const user = await User.findOne({ email: req.body.email }).maxTimeMS(5000);
         if (!user) {
             return res.status(404).send({
                 message: "User does not exist.",
@@ -70,9 +71,10 @@ const login = async (req, res) => {
             success: true,
         });
     } catch (error) {
+        console.error('Error in login:', error);
         res.status(500).send({
             message: "Error logging in.",
-            data: error,
+            data: null,
             success: false,
         });
     }
@@ -80,7 +82,7 @@ const login = async (req, res) => {
 
 const getUserInfo = async (req, res) => {
     try {
-        const user = await User.findById(req.body.userid);
+        const user = await User.findById(req.body.userid).maxTimeMS(5000);
         if (!user) {
             return res.status(404).send({
                 message: "User not found.",
@@ -94,9 +96,10 @@ const getUserInfo = async (req, res) => {
             success: true,
         });
     } catch (error) {
+        console.error('Error in getUserInfo:', error);
         res.status(500).send({
             message: "Error fetching user info.",
-            data: error,
+            data: null,
             success: false,
         });
     }
