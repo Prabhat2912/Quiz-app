@@ -15,7 +15,7 @@ const chat = async (prompt) => {
             model: "gemini-2.0-flash-lite",
             contents: prompt,
         });
-        console.log("AI Responsessss:", response.candidates[0].content.parts[0].text);
+        // console.log("AI Responsessss:", response.candidates[0].content.parts[0].text);
         return response.candidates[0].content.parts[0].text;
     } catch (error) {
         console.error("Error generating content:", error);
