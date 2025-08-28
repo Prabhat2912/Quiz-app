@@ -31,49 +31,46 @@ app.use("/api/users", userRoute)
 app.use("/api/exams", examRoute)
 app.use("/api/reports", reportRoute)
 
-
-app.use(express.urlencoded({ extended: true }))
-const _dirname = path.resolve();
-// app.use(express.static(path.join(_dirname, "../frontend/build")));
-// app.get("*", (req, res) => {
-//     res.sendFile(path.join(_dirname, "../frontend/build/index.html"))
-// });
-
-app.use((err, req, res, next) => {
-    console.error('Server error:', err);
-
-    if (err.timeout) {
-        res.status(408).json({
-            message: "Request timeout",
-            success: false,
-            error: "TIMEOUT"
-        });
-    } else {
-        res.status(500).json({
-            message: err.message || "Internal server error",
-            success: false
-        });
-    }
-})
-
-// Handle timeout specifically
+// Handle timeout specifically (move before error handler)
 app.use((req, res, next) => {
     if (req.timedout) {
-        res.status(408).json({
+        return res.status(408).json({
             message: "Request timeout - please try again",
             success: false,
             error: "TIMEOUT"
         });
-    } else {
-        next();
     }
+    next();
 });
+
+// Error handling middleware (must be last)
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+
+    if (err.timeout || req.timedout) {
+        return res.status(408).json({
+            message: "Request timeout",
+            success: false,
+            error: "TIMEOUT"
+        });
+    }
+
+    res.status(500).json({
+        message: err.message || "Internal server error",
+        success: false
+    });
+})
 
 app.get('/api/status', (req, res) => {
     res.send({ message: "Server is running!", success: true });
 });
 
-app.listen(port, (req, res) => {
-    // res.send({ message: "Server is running" })
-    console.log(`Server is running on PORT: ${port}`)
-})
+// Export the Express API for Vercel
+module.exports = app;
+
+// Only listen on port if not in Vercel environment
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server is running on PORT: ${port}`)
+    })
+}
