@@ -12,10 +12,20 @@ const reportRoute = require("./routes/reportRoutes")
 
 const port = process.env.PORT || 5000
 
+// Timeout middleware
+const timeout = require('connect-timeout');
+
 app.use(cors({ origin: "*" }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// Add timeout middleware (25 seconds to stay under Vercel's 30s limit)
+app.use(timeout('25s'));
+
+// Timeout handler
+app.use((req, res, next) => {
+    if (!req.timedout) next();
+});
 
 app.use("/api/users", userRoute)
 app.use("/api/exams", examRoute)

@@ -10,6 +10,16 @@ export const addExam = async (payload) => {
     }
 }
 
+export const createExamWithAI = async (payload) => {
+    try {
+        const response = await axiosInstance.post('/api/exams/createExam', payload)
+        return response.data
+    }
+    catch (error) {
+        return error.response.data
+    }
+}
+
 export const getAllExams = async () => {
     try {
         const response = await axiosInstance.get('/api/exams/getAllExams')
