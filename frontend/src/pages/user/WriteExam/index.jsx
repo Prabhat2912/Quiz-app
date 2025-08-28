@@ -79,7 +79,7 @@ function WriteExam() {
         verdict = "Fail";
       }
       const tempResult = {
-        obtainedMarks,
+        correctAnswers,
         wrongAnswers,
         verdict,
       };
