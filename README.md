@@ -346,7 +346,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Prabhat Kumar**
 
 - GitHub: [@Prabhat2912](https://github.com/Prabhat2912)
-- LinkedIn: [Your LinkedIn Profile]
+- LinkedIn: [real-prabhat](https://www.linkedin.com/in/real-prabhat/)
 
 ## 🙏 Acknowledgments
 
