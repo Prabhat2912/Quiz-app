@@ -34,7 +34,13 @@ function Leaderboard() {
     reports.forEach((report) => {
       const { user, result } = report;
       const { _id: userId, name: userName } = user;
-      const score = result?.correctAnswers?.length;
+      const totalQuestions = report?.exam?.questions?.length || 0;
+      const correctAnswersCount = result?.correctAnswers?.length || 0;
+      const score =
+        totalQuestions > 0
+          ? (correctAnswersCount / totalQuestions) *
+            (report?.exam?.totalMarks || 0)
+          : 0;
 
       if (leaderboardMap.has(userId)) {
         leaderboardMap.get(userId).score += score;
