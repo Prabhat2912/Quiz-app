@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { getUserInfo } from "../apicalls/users";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
 import { SetUser } from "../redux/usersSlice";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
 import ThemeBtn from "./ThemeBtn";
 import "remixicon/fonts/remixicon.css";
@@ -12,74 +12,76 @@ import "remixicon/fonts/remixicon.css";
 function ProtectedRoute({ children }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector((state) => state.users.user);
   const [menu, setMenu] = useState([]);
   const [collapsed, setCollapsed] = useState(true);
-  const userMenu = [
-    {
-      title: "Home",
-      paths: ["/", "/user/write-exam/:id"],
-      icon: <i className="ri-home-line"></i>,
-      onClick: () => navigate("/"),
-    },
-    {
-      title: "Reports",
-      paths: ["/user/reports"],
-      icon: <i className="ri-bar-chart-line"></i>,
-      onClick: () => navigate("/user/reports"),
-    },
-    // {
-    //   title: "Profile",
-    //   paths: ["/profile"],
-    //   icon: <i className='ri-user-line'></i>,
-    //   onClick: ()=>navigate("/profile")
-    // },
-    {
-      title: "Logout",
-      paths: ["/logout"],
-      icon: <i className="ri-logout-box-line"></i>,
-      onClick: () => {
-        localStorage.removeItem("token");
-        navigate("/login");
+  const userMenu = useMemo(
+    () => [
+      {
+        title: "Home",
+        paths: ["/", "/user/write-exam/:id"],
+        icon: <i className="ri-home-line"></i>,
+        onClick: () => navigate("/"),
       },
-    },
-  ];
-  const adminMenu = [
-    {
-      title: "Home",
-      paths: ["/", "/user/write-exam/:id"],
-      icon: <i className="ri-home-line"></i>,
-      onClick: () => navigate("/"),
-    },
-    {
-      title: "Exams",
-      paths: ["/admin/exams", "/admin/exams/add", "/admin/exams/edit/:id"],
-      icon: <i className="ri-file-list-line"></i>,
-      onClick: () => navigate("/admin/exams"),
-    },
-    {
-      title: "Reports",
-      paths: ["/admin/reports"],
-      icon: <i className="ri-bar-chart-line"></i>,
-      onClick: () => navigate("/admin/reports"),
-    },
-    {
-      title: "Leaderboard",
-      paths: ["/leaderboard"],
-      icon: <i className="ri-trophy-line"></i>,
-      onClick: () => navigate("/leaderboard"),
-    },
-    {
-      title: "Logout",
-      paths: ["/logout"],
-      icon: <i className="ri-logout-box-line"></i>,
-      onClick: () => {
-        localStorage.removeItem("token");
-        navigate("/login");
+      {
+        title: "Reports",
+        paths: ["/user/reports"],
+        icon: <i className="ri-bar-chart-line"></i>,
+        onClick: () => navigate("/user/reports"),
       },
-    },
-  ];
-  const getUserData = async () => {
+      {
+        title: "Logout",
+        paths: ["/logout"],
+        icon: <i className="ri-logout-box-line"></i>,
+        onClick: () => {
+          localStorage.removeItem("token");
+          navigate("/login");
+        },
+      },
+    ],
+    [navigate]
+  );
+
+  const adminMenu = useMemo(
+    () => [
+      {
+        title: "Home",
+        paths: ["/", "/user/write-exam/:id"],
+        icon: <i className="ri-home-line"></i>,
+        onClick: () => navigate("/"),
+      },
+      {
+        title: "Exams",
+        paths: ["/admin/exams", "/admin/exams/add", "/admin/exams/edit/:id"],
+        icon: <i className="ri-file-list-line"></i>,
+        onClick: () => navigate("/admin/exams"),
+      },
+      {
+        title: "Reports",
+        paths: ["/admin/reports"],
+        icon: <i className="ri-bar-chart-line"></i>,
+        onClick: () => navigate("/admin/reports"),
+      },
+      {
+        title: "Leaderboard",
+        paths: ["/leaderboard"],
+        icon: <i className="ri-trophy-line"></i>,
+        onClick: () => navigate("/leaderboard"),
+      },
+      {
+        title: "Logout",
+        paths: ["/logout"],
+        icon: <i className="ri-logout-box-line"></i>,
+        onClick: () => {
+          localStorage.removeItem("token");
+          navigate("/login");
+        },
+      },
+    ],
+    [navigate]
+  );
+  const getUserData = useCallback(async () => {
     try {
       dispatch(ShowLoading());
       const response = await getUserInfo();
@@ -107,7 +109,7 @@ function ProtectedRoute({ children }) {
       localStorage.removeItem("token");
       navigate("/login");
     }
-  };
+  }, [dispatch, navigate, adminMenu, userMenu]);
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
@@ -117,7 +119,7 @@ function ProtectedRoute({ children }) {
     } else {
       navigate("/login");
     }
-  }, []);
+  }, [location.pathname, getUserData, navigate, user]);
   const activeRoute = window.location.pathname;
   const getIsActiveOrNot = (paths) => {
     if (paths.includes(activeRoute)) {
