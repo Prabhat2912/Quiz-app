@@ -19,13 +19,13 @@ function ProtectedRoute({ children }) {
     {
       title: "Home",
       paths: ["/", "/user/write-exam/:id"],
-      icon: <i className='ri-home-line'></i>,
+      icon: <i className="ri-home-line"></i>,
       onClick: () => navigate("/"),
     },
     {
       title: "Reports",
       paths: ["/user/reports"],
-      icon: <i className='ri-bar-chart-line'></i>,
+      icon: <i className="ri-bar-chart-line"></i>,
       onClick: () => navigate("/user/reports"),
     },
     // {
@@ -37,7 +37,7 @@ function ProtectedRoute({ children }) {
     {
       title: "Logout",
       paths: ["/logout"],
-      icon: <i className='ri-logout-box-line'></i>,
+      icon: <i className="ri-logout-box-line"></i>,
       onClick: () => {
         localStorage.removeItem("token");
         navigate("/login");
@@ -48,31 +48,31 @@ function ProtectedRoute({ children }) {
     {
       title: "Home",
       paths: ["/", "/user/write-exam/:id"],
-      icon: <i className='ri-home-line'></i>,
+      icon: <i className="ri-home-line"></i>,
       onClick: () => navigate("/"),
     },
     {
       title: "Exams",
       paths: ["/admin/exams", "/admin/exams/add", "/admin/exams/edit/:id"],
-      icon: <i className='ri-file-list-line'></i>,
+      icon: <i className="ri-file-list-line"></i>,
       onClick: () => navigate("/admin/exams"),
     },
     {
       title: "Reports",
       paths: ["/admin/reports"],
-      icon: <i className='ri-bar-chart-line'></i>,
+      icon: <i className="ri-bar-chart-line"></i>,
       onClick: () => navigate("/admin/reports"),
     },
     {
       title: "Leaderboard",
       paths: ["/leaderboard"],
-      icon: <i className='ri-trophy-line'></i>,
+      icon: <i className="ri-trophy-line"></i>,
       onClick: () => navigate("/leaderboard"),
     },
     {
       title: "Logout",
       paths: ["/logout"],
-      icon: <i className='ri-logout-box-line'></i>,
+      icon: <i className="ri-logout-box-line"></i>,
       onClick: () => {
         localStorage.removeItem("token");
         navigate("/login");
@@ -140,12 +140,12 @@ function ProtectedRoute({ children }) {
   };
   return (
     user && (
-      <div className=' border h-[100vh] min-w-[340px] overflow-hidden '>
-        <div className='flex h-[100%]   '>
+      <div className="  h-[100vh] min-w-[340px] overflow-hidden ">
+        <div className="flex h-[100%]  ">
           <div
             className={` ${
               collapsed ? "w-20" : "w-64"
-            } mt-[56px] bg-[#0F3460] dark:bg-black overflow-hidden transition-all duration-200 ease-linear border-r border-gray-400  p-2.5  text-white h-[100vh]  flex flex-col items-center justify-start`}
+            } mt-[55px] bg-[#0F3460] z-[10000] dark:bg-black overflow-hidden transition-all duration-200 ease-linear   p-2.5  text-white h-[100vh]   flex flex-col items-center justify-start`}
           >
             <div
               className={` ${
@@ -154,18 +154,18 @@ function ProtectedRoute({ children }) {
             >
               {!collapsed && (
                 <i
-                  className='ri-close-line text-2xl flex items-center'
+                  className="ri-close-line text-2xl flex items-center"
                   onClick={() => setCollapsed(true)}
                 ></i>
               )}
               {collapsed && (
                 <i
-                  className='ri-menu-2-line text-2xl flex items-center'
+                  className="ri-menu-2-line text-2xl flex items-center"
                   onClick={() => setCollapsed(false)}
                 ></i>
               )}
             </div>
-            <div className='flex justify-center flex-col gap-1  mt-8'>
+            <div className="flex justify-center  flex-col gap-1  mt-8">
               {menu.map((item, index) => {
                 return (
                   <div
@@ -178,30 +178,30 @@ function ProtectedRoute({ children }) {
                   >
                     {item.icon}
                     {!collapsed && (
-                      <div className='  min-w-20 '>{item.title}</div>
+                      <div className="  min-w-20 ">{item.title}</div>
                     )}
                   </div>
                 );
               })}
             </div>
           </div>
-          <div className='w-full overflow-y-scroll'>
-            <div className=' w-full fixed top-0   z-[10000] right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between'>
-              <h1 className='text-2xl text-white flex items-center'>
+          <div className="w-full overflow-y-scroll">
+            <div className=" w-full fixed top-0 px-4  z-[10000] right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between">
+              <h1 className="text-2xl text-white flex items-center">
                 Quiz App
               </h1>
               <div>
-                <div className='flex justify-center items-center gap-1'>
-                  <i className='ri-user-line'></i>
+                <div className="flex justify-center items-center gap-1">
+                  <i className="ri-user-line"></i>
                   {user?.name}
                 </div>
                 <span>Role : {user?.isAdmin ? "Admin" : "User"}</span>
               </div>
-              <div className='flex justify-center items-center'>
+              <div className="flex justify-center items-center">
                 <ThemeBtn />
               </div>
             </div>
-            <div className=' overflow-y-scroll p-4 mt-8 bg-gray-200 min-h-full '>
+            <div className=" overflow-y-scroll p-4 mt-8 bg-gray-200 min-h-full ">
               {children}
             </div>
           </div>

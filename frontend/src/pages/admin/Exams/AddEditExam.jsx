@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PageTitle from "../../../components/PageTitle";
-import { Form, Row, Col, message, Tabs, Table } from "antd";
+import { Form, Row, Col, message, Tabs, Table, Select } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
+
 import {
   addExam,
   createExamWithAI as createExamWithAIApi, // ✅ renamed import
@@ -21,11 +22,13 @@ function AddEditExam() {
   const [showAddEditQuestionModal, setShowAddEditQuestionModal] =
     useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState();
-  const [form] = Form.useForm(); // form instance
+  const [form] = Form.useForm();
 
-  // ✅ renamed local function to avoid conflict
   const handleCreateExamWithAI = async (values) => {
     try {
+      if (Array.isArray(values.category)) {
+        values.category = values.category[0];
+      }
       if (
         !values.name ||
         !values.category ||
@@ -60,6 +63,9 @@ function AddEditExam() {
   const onFinish = async (values) => {
     try {
       dispatch(ShowLoading());
+      if (Array.isArray(values.category)) {
+        values.category = values.category[0];
+      }
       let response;
       if (id) {
         response = await editExam(values, id);
@@ -210,19 +216,20 @@ function AddEditExam() {
                 </Col>
                 <Col span={8}>
                   <Form.Item label="Category" name="category">
-                    <select>
-                      <option value="">Select Category</option>
-                      <option value="JavaScript">JavaScript</option>
-                      <option value="Nodejs">Node.js</option>
-                      <option value="React">React</option>
-                      <option value="MongoDb">MongoDB</option>
-                      <option value="Python">Python</option>
-                      <option value="Java">Java</option>
-                      <option value="HTML">HTML</option>
-                      <option value="CSS">CSS</option>
-                      <option value="SQL">SQL</option>
-                      <option value="DataStructures">Data Structures</option>
-                    </select>
+                    <Select
+                      showSearch
+                      mode="tags"
+                      maxCount={1}
+                      size="large"
+                      style={{ width: "100%" }}
+                      placeholder="Select or create category"
+                    >
+                      {categories.map((cat) => (
+                        <Select.Option key={cat} value={cat}>
+                          {cat}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </Form.Item>
                 </Col>
                 <Col span={8}>
@@ -307,5 +314,17 @@ function AddEditExam() {
     </div>
   );
 }
+const categories = [
+  "JavaScript",
+  "Node.js",
+  "React",
+  "MongoDB",
+  "Python",
+  "Java",
+  "HTML",
+  "CSS",
+  "SQL",
+  "Data Structures",
+];
 
 export default AddEditExam;

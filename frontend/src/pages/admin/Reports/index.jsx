@@ -124,6 +124,7 @@ function AdminReportsPage() {
         columns={columns}
         className="mt-2  min-w-[620px]  "
         dataSource={reportsData}
+        locale={{ emptyText: "No reports available 😔" }}
       />
     </div>
   );
