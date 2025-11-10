@@ -22,12 +22,14 @@ import WriteExam from "./pages/user/WriteExam";
 import AdminReportsPage from "./pages/admin/Reports";
 import Leaderboard from "./pages/admin/Leaderboard";
 import NotFoundPage from "./pages/common/NotFoundPage";
+import InstallPWA from "./components/InstallPWA";
 
 function App() {
   const { loading } = useSelector((state) => state.loaders);
   return (
     <>
       {loading && <Loader />}
+      <InstallPWA />
       <Router>
         <Routes>
           <Route
