@@ -54,13 +54,15 @@ The output must be strictly in JSON format as an array of question objects with 
       "B": "Option B text",
       "C": "Option C text",
       "D": "Option D text"
-    }
+    },
+    "explanation": "Brief 2-3 sentence explanation of why this answer is correct"
   }
 ]
 Rules:
 - name: The question text as a string
 - correctOptions: An array of strings containing the correct option labels (e.g., ["A"] or ["A","C"])
 - options: An object where keys are option labels (A, B, C, D) and values are the option texts
+- explanation: A clear, educational explanation (2-3 sentences) about why the correct answer is right
 - Return only valid JSON array, no extra text or formatting
 - Make sure the JSON is valid and follows the schema exactly`;
 
@@ -124,6 +126,7 @@ Rules:
                 name: questionData.name,
                 correctOptions: questionData.correctOptions,
                 options: questionData.options,
+                explanation: questionData.explanation || "",
                 exam: examId
             }));
 
@@ -169,5 +172,74 @@ Rules:
         }
     }
 }
-module.exports = { createExam };
+const generateExplanation = async (req, res) => {
+    try {
+        const { questionText, correctOptions, options, category } = req.body;
+
+        if (!questionText || !correctOptions || !options) {
+            return res.status(400).json({
+                message: "Question text, correct options, and options are required",
+                success: false
+            });
+        }
+
+        // Build a prompt for generating the explanation
+        const correctAnswers = correctOptions.map(opt => `${opt}: ${options[opt]}`).join(', ');
+        const allOptions = Object.entries(options).map(([key, value]) => `${key}: ${value}`).join('\n');
+
+        const prompt = `Generate a clear and concise explanation for the following question. Explain why the correct answer is right and provide educational context.
+
+Question: ${questionText}
+${category ? `Category: ${category}` : ''}
+
+Options:
+${allOptions}
+
+Correct Answer(s): ${correctAnswers}
+
+Provide a brief, educational explanation (2-3 sentences) that helps learners understand why this is the correct answer. Focus on the key concept or reasoning.`;
+
+        console.log("Generating explanation with AI...");
+
+        // Set timeout for AI call
+        const aiTimeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('AI API timeout')), 10000); // 10 seconds
+        });
+
+        const aiResponse = await Promise.race([
+            chat(prompt),
+            aiTimeoutPromise
+        ]);
+
+        const explanation = aiResponse.response?.text() || aiResponse;
+        const cleanedExplanation = explanation.trim();
+
+        console.log("Explanation generated successfully");
+
+        return res.status(200).json({
+            message: "Explanation generated successfully",
+            success: true,
+            data: { explanation: cleanedExplanation }
+        });
+
+    } catch (error) {
+        console.error("Error generating explanation:", error);
+
+        if (error.message === 'AI API timeout') {
+            return res.status(408).json({
+                message: "Request timeout while generating explanation",
+                success: false,
+                error: "TIMEOUT"
+            });
+        }
+
+        return res.status(500).json({
+            message: "Error generating explanation",
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+module.exports = { createExam, generateExplanation };
 

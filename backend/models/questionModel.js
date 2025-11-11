@@ -19,6 +19,10 @@ const questionSchema = new mongoose.Schema({
         ref: "exams",
         required: true
     },
+    explanation: {
+        type: String,
+        default: ""
+    }
 }, {
     timestamps: true
 });

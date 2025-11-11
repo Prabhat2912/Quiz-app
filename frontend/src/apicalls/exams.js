@@ -91,3 +91,13 @@ export const deleteQuestionFromExam = async (id, payload) => {
         return error.response?.data || { success: false, message: "Server error" };
     }
 };
+
+// Generate AI explanation for a question
+export const generateExplanation = async (payload) => {
+    try {
+        const response = await axiosInstance.post("/api/exams/generateExplanation", payload);
+        return response.data;
+    } catch (error) {
+        return error.response?.data || { success: false, message: "Server error" };
+    }
+};

@@ -6,6 +6,8 @@ import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { message } from "antd";
 import Instructions from "./Instructions";
 import { addReport } from "../../../apicalls/reports";
+import { getUserInfo } from "../../../apicalls/users";
+import { SetUser } from "../../../redux/usersSlice";
 import { useSelector } from "react-redux";
 
 function WriteExam() {
@@ -92,6 +94,30 @@ function WriteExam() {
       });
       dispatch(HideLoading());
       if (response.success) {
+        // Show XP earned message if available
+        if (response.data?.xpEarned) {
+          message.success(
+            `Quiz completed! You earned ${response.data.xpEarned} XP!`
+          );
+          if (response.data.leveledUp) {
+            message.success(
+              `🎉 Level Up! You're now Level ${response.data.newLevel}!`,
+              3
+            );
+          }
+          if (response.data.newBadges && response.data.newBadges.length > 0) {
+            response.data.newBadges.forEach((badge) => {
+              message.success(`🏅 New Badge Earned: ${badge.name}!`, 3);
+            });
+          }
+        }
+
+        // Refresh user data to update XP/Level in header
+        const userResponse = await getUserInfo();
+        if (userResponse.success) {
+          dispatch(SetUser(userResponse.data));
+        }
+
         setView("result");
       } else {
         message.error(response.message);
@@ -357,6 +383,7 @@ function WriteExam() {
 
         {view === "review" && result && (
           <div className="flex flex-col gap-4 mt-4">
+            <h1 className="text-2xl font-bold mb-4">Review Your Answers</h1>
             {questions.map((question, index) => {
               const selected = selectedOptions[index] || [];
               const correct = question.correctOptions || [
@@ -366,45 +393,119 @@ function WriteExam() {
                 correct.every((option) => selected.includes(option)) &&
                 selected.length === correct.length;
 
+              // Debug log to check if explanation exists
+              if (!isCorrect && !question.explanation) {
+                console.log(
+                  `Question ${index + 1} has no explanation:`,
+                  question.name
+                );
+              }
+
               return (
                 <div
                   key={index}
-                  className={`flex flex-col p-4 border rounded ${
+                  className={`flex flex-col p-4 border-2 rounded-lg shadow-sm ${
                     isCorrect
-                      ? "bg-green-100 dark:bg-gray-400 "
-                      : "bg-red-100 dark:bg-gray-600  "
+                      ? "bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600"
+                      : "bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600"
                   }`}
                 >
-                  <h1 className="text-lg font-semibold">
-                    {index + 1} : {question.name}
-                  </h1>
-                  <h1 className="text-md">
-                    Submitted Answer : {selected.join(", ") || "N/A"}
-                  </h1>
-                  <h1 className="text-md">
-                    Correct Answer : {correct.join(", ")}
-                  </h1>
+                  <div className="flex items-start gap-2 mb-3">
+                    <span
+                      className={`text-xl font-bold ${
+                        isCorrect
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {isCorrect ? "✓" : "✗"}
+                    </span>
+                    <div className="flex-1">
+                      <h1 className="text-lg font-semibold mb-2">
+                        Question {index + 1}: {question.name}
+                      </h1>
+
+                      <div className="flex flex-col gap-2 mb-3">
+                        {Object.keys(question.options).map((option) => {
+                          const isSelected = selected.includes(option);
+                          const isCorrectOption = correct.includes(option);
+
+                          let optionStyle = "p-2 rounded border ";
+                          if (isCorrectOption) {
+                            optionStyle +=
+                              "bg-green-200 dark:bg-green-800/40 border-green-500 font-medium";
+                          } else if (isSelected && !isCorrectOption) {
+                            optionStyle +=
+                              "bg-red-200 dark:bg-red-800/40 border-red-500";
+                          } else {
+                            optionStyle +=
+                              "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600";
+                          }
+
+                          return (
+                            <div key={option} className={optionStyle}>
+                              <span className="font-semibold">{option}:</span>{" "}
+                              {question.options[option]}
+                              {isCorrectOption && (
+                                <span className="ml-2 text-green-700 dark:text-green-300">
+                                  (Correct Answer)
+                                </span>
+                              )}
+                              {isSelected && !isCorrectOption && (
+                                <span className="ml-2 text-red-700 dark:text-red-300">
+                                  (Your Answer)
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {!isCorrect && (
+                        <div>
+                          {question.explanation ? (
+                            <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded">
+                              <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">
+                                Explanation:
+                              </h3>
+                              <p className="text-gray-800 dark:text-gray-300">
+                                {question.explanation}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="mt-3 p-3 bg-gray-100 dark:bg-gray-800 border-l-4 border-gray-400 rounded">
+                              <p className="text-gray-600 dark:text-gray-400 text-sm italic">
+                                No explanation available for this question yet.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               );
             })}
-            <div className="flex justify-center gap-2 mt-4">
+            <div className="flex justify-center gap-4 mt-4">
               <button
-                className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+                className="bg-yellow-500 dark:bg-yellow-600 text-white px-6 py-2 rounded hover:bg-yellow-600 dark:hover:bg-yellow-700 transition"
                 onClick={() => {
                   setView("instructions");
                   setSelectedQuestionIndex(0);
                   setSelectedOptions({});
-                  setTimeUp(false);
-                  setSecondsLeft(examData.duration);
                   setSubmitted(false);
                   setCurrentAnswerResult(null);
                   setTimeUp(false);
                   setSecondsLeft(examData.duration);
-                  navigate("/");
-                  navigate("/");
                 }}
               >
-                Close
+                Retake Exam
+              </button>
+              <button
+                className="bg-gray-500 dark:bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-700 transition"
+                onClick={() => navigate("/")}
+              >
+                Back to Home
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 const router = require("express").Router()
-const { createExam } = require('../controllers/aiControllers')
+const { createExam, generateExplanation } = require('../controllers/aiControllers')
 const { addExam, getAllExams, getExamById, editExam, deleteExam, addQuestionToExam, deleteQuestionFromExam, editQuestionInExam } = require("../controllers/examControllers")
 const authMiddleware = require("../middlewares/authMiddleware")
 
@@ -12,5 +12,6 @@ router.post('/addQuestionToExam/:id', authMiddleware, addQuestionToExam)
 router.delete('/deleteQuestionFromExam/:id', authMiddleware, deleteQuestionFromExam)
 router.put('/editQuestionInExam/:id', authMiddleware, editQuestionInExam)
 router.post('/createExam', authMiddleware, createExam);
+router.post('/generateExplanation', authMiddleware, generateExplanation);
 
 module.exports = router;

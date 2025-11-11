@@ -25,6 +25,12 @@ function ProtectedRoute({ children }) {
         onClick: () => navigate("/"),
       },
       {
+        title: "Progress",
+        paths: ["/user/progress"],
+        icon: <i className="ri-line-chart-line"></i>,
+        onClick: () => navigate("/user/progress"),
+      },
+      {
         title: "Reports",
         paths: ["/user/reports"],
         icon: <i className="ri-bar-chart-line"></i>,
@@ -88,6 +94,10 @@ function ProtectedRoute({ children }) {
       dispatch(HideLoading());
 
       if (response.success) {
+        console.log("User data received:", response.data); // Debug log
+        console.log("User XP:", response.data.xp);
+        console.log("User Level:", response.data.level);
+        console.log("User Badges:", response.data.badges);
         message.success(response.message);
         dispatch(SetUser(response.data));
         if (response.data.isAdmin) {
@@ -140,6 +150,15 @@ function ProtectedRoute({ children }) {
       return false;
     }
   };
+
+  // Debug logging
+  if (user) {
+    console.log("Rendering with user:", user);
+    console.log("User level:", user.level);
+    console.log("User xp:", user.xp);
+    console.log("Is admin?", user.isAdmin);
+  }
+
   return (
     user && (
       <div className="  h-[100vh] min-w-[340px] overflow-hidden ">
@@ -188,16 +207,48 @@ function ProtectedRoute({ children }) {
             </div>
           </div>
           <div className="w-full overflow-y-scroll">
-            <div className=" w-full fixed top-0 px-4  z-[10000] right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between">
+            <div className=" w-full fixed top-0 px-4  z-[10000] right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between items-center">
               <h1 className="text-2xl text-white flex items-center">
                 Quiz App
               </h1>
+
+              {/* XP and Level Display - Show for all users */}
+              {user && (user.level !== undefined || user.xp !== undefined) ? (
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs opacity-80">Level</span>
+                    <span className="text-lg font-bold">{user.level || 1}</span>
+                  </div>
+                  <div className="flex flex-col min-w-[120px]">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>{user.xp || 0} XP</span>
+                      {user.badges && user.badges.length > 0 && (
+                        <span>🏅 {user.badges.length}</span>
+                      )}
+                    </div>
+                    <div className="bg-gray-600 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-yellow-400 h-full rounded-full transition-all duration-300"
+                        style={{
+                          width: `${Math.min(
+                            (((user.xp || 0) % 100) / 100) * 100,
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <div>
                 <div className="flex justify-center items-center gap-1">
                   <i className="ri-user-line"></i>
                   {user?.name}
                 </div>
-                <span>Role : {user?.isAdmin ? "Admin" : "User"}</span>
+                <span className="text-sm opacity-80">
+                  Role : {user?.isAdmin ? "Admin" : "User"}
+                </span>
               </div>
               <div className="flex justify-center items-center">
                 <ThemeBtn />

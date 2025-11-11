@@ -309,6 +309,7 @@ function AddEditExam() {
           refreshData={getExamDataById}
           selectedQuestion={selectedQuestion}
           setSelectedQuestion={setSelectedQuestion}
+          examCategory={examData?.category}
         />
       )}
     </div>

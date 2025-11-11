@@ -40,3 +40,13 @@ export const getAllAttemptsByUser = async () => {
         return error.response.data
     }
 }
+
+export const getUserProgress = async () => {
+    try {
+        const response = await axiosInstance.get('/api/reports/getUserProgress')
+        return response.data
+    }
+    catch (error) {
+        return error.response.data
+    }
+}

@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import ReportsPage from "./pages/user/Reports";
 import ProfilePage from "./pages/user/Profile";
+import ProgressPage from "./pages/user/Progress";
 import ExamsPage from "./pages/admin/Exams";
 import AddEditExam from "./pages/admin/Exams/AddEditExam";
 import Loader from "./components/Loader";
@@ -85,6 +86,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ReportsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user/progress"
+            element={
+              <ProtectedRoute>
+                <ProgressPage />
               </ProtectedRoute>
             }
           />
