@@ -4,7 +4,14 @@ A comprehensive full-stack quiz application built with the MERN stack, featuring
 
 ## ✨ Features
 
-### 🔐 Authentication & Authorization
+### � What's New (Nov 2025)
+
+- Progressive Web App (PWA): Installable on mobile/desktop with offline caching
+- Gamification: XP, Levels, Badges, Streaks, and a Progress Dashboard
+- AI Explanations: One-click Gemini explanations for each question (admin), and automatic explanations for AI-generated exams
+- Detailed Review: Shows correct vs selected options and explanations after quiz
+
+### �🔐 Authentication & Authorization
 
 - JWT-based authentication with secure password hashing
 - Role-based access control (Admin/User)
@@ -42,6 +49,21 @@ A comprehensive full-stack quiz application built with the MERN stack, featuring
 - **Complex Queries**: Advanced MongoDB aggregation for analytics
 - **Timeout Handling**: Robust timeout management for AI operations
 
+### 🕹️ Gamification (XP, Levels, Badges, Streaks)
+
+- Earn +10 XP per correct answer, plus +20 XP bonus for perfect score
+- Level progression with increasing XP thresholds (Level 1 → 10)
+- Badges auto-awarded for achievements (Learner, Sharp Mind, Perfect Score, Dedicated Learner, Streak Warrior, Knowledge Master)
+- Daily streaks tracked (current and longest)
+- XP/Level/badge count displayed in header
+- Full Progress Dashboard page: XP bar, stats, recent scores, category performance, badges
+
+### 📲 PWA (Installable App)
+
+- Install prompt on supported mobile/desktop browsers
+- Works offline for static assets and cached API routes
+- Configured via Vite PWA plugin and Workbox caching strategies
+
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -67,6 +89,10 @@ A comprehensive full-stack quiz application built with the MERN stack, featuring
 ### Deployment
 
 ![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
+
+### PWA
+
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
 
 ## 📁 Project Structure
 
@@ -186,6 +212,13 @@ VITE_API_URL=https://your-backend-url.vercel.app/api
 2. Add the API key to your backend `.env` file as `GEMINI_API_KEY`
 3. This enables the AI-powered question generation feature
 
+#### Step 6: PWA (Optional)
+
+No extra setup required in dev. For best PWA testing:
+
+- Build the frontend (`npm run build`) and serve over HTTPS (Vercel recommended)
+- On mobile, open the site and use "Add to Home screen" / install prompt
+
 ### Running the Application
 
 #### Development Mode
@@ -244,6 +277,7 @@ vercel --prod
 - `GET /api/exams/getExamById/:id` - Get exam details
 - `PUT /api/exams/editExam/:id` - Update exam (Admin only)
 - `DELETE /api/exams/deleteExam/:id` - Delete exam (Admin only)
+- `POST /api/exams/generateExplanation` - Generate AI explanation for a question (Admin)
 
 ### Question Management Endpoints
 
@@ -257,6 +291,11 @@ vercel --prod
 - `GET /api/reports/getAllAttemptsByUser` - Get user's exam history
 - `GET /api/reports/getAllReports` - Get all reports (Admin only)
 - `POST /api/reports/getAllAttempts` - Get filtered attempts (Admin only)
+- `GET /api/reports/getUserProgress` - Get full user progress (xp, level, badges, streaks, recent scores, category performance)
+
+### PWA
+
+No HTTP endpoints; service worker is generated at build time by Vite PWA.
 
 ## 🎯 Key Features Explained
 
@@ -269,6 +308,32 @@ The app uses Google's Gemini AI to automatically generate exam questions based o
 - Questions with multiple correct answers
 - Properly formatted options and explanations
 
+#### AI Explanations (Gemini)
+
+- Admins can generate an explanation in the "Add/Edit Question" modal using the "Generate with AI" button
+- Explanations are automatically generated for exams created with AI
+- Users see explanations for incorrect answers on the Review page
+
+Request schema for `/api/exams/generateExplanation`:
+
+```json
+{
+  "questionText": "string",
+  "correctOptions": ["A", "C"],
+  "options": { "A": "...", "B": "...", "C": "...", "D": "..." },
+  "category": "string (optional)"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": { "explanation": "2-3 sentence explanation" }
+}
+```
+
 ### Real-time Analytics
 
 - User performance tracking
@@ -278,6 +343,16 @@ The app uses Google's Gemini AI to automatically generate exam questions based o
 - Leaderboard rankings
 
 ### Robust Error Handling
+
+### Progress Dashboard
+
+The `/user/progress` page shows:
+
+- Level and XP progress towards next level
+- Total quizzes, accuracy, streaks
+- Recent scores with pass/fail
+- Category-wise performance with average score
+- Earned badges with timestamps
 
 - Comprehensive timeout management
 - Graceful error recovery
@@ -319,7 +394,8 @@ The app uses Google's Gemini AI to automatically generate exam questions based o
 
 - Question content
 - Multiple choice options
-- Correct answer references
+- Correct answer references (supports multiple correct answers)
+- Explanation (string) for answer reasoning
 - Category classification
 
 ### Report Model
@@ -328,6 +404,28 @@ The app uses Google's Gemini AI to automatically generate exam questions based o
 - Performance metrics
 - Timestamp tracking
 - Result calculations
+- Answers array with details (selected, correct, isCorrect, explanation)
+
+### Gamification (User Model)
+
+- xp: number (total XP)
+- level: number (1–10)
+- badges: array of earned badges (name, description, icon, earnedAt)
+- stats: totalQuizzesCompleted, totalCorrectAnswers, totalQuestionsAttempted, currentStreak, longestStreak, lastQuizDate
+
+## 🧰 Maintenance Scripts
+
+From the `backend/` directory:
+
+```powershell
+# Add AI-generated explanations to existing questions
+node scripts/addExplanationsToQuestions.js
+
+# Initialize gamification fields on existing users
+node scripts/initializeUserGamification.js
+```
+
+Both scripts require valid `.env` configuration in `backend/`.
 
 ## 🤝 Contributing
 
