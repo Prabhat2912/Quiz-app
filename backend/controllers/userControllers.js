@@ -27,7 +27,8 @@ const register = async (req, res) => {
                 try {
                     ({ sent } = await sendOtpEmail(userExists.email, otp, "register"));
                 } catch (mailError) {
-                    console.error('OTP email failed:', mailError.message);
+                    // Delivery failures stay silent: the OTP is still issued
+                    // and the response reports emailSent:false.
                 }
                 return res.status(200).send({
                     message: "This email is already registered but not verified. A fresh code was sent.",

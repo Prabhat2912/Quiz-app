@@ -40,6 +40,4 @@ app.get('/api/status', (req, res) => {
 app.listen(port, (req, res) => {
     // res.send({ message: "Server is running" })
     console.log(`Server is running on PORT: ${port}`)
-    const { verifyMailTransport } = require("./utils/mailer")
-    verifyMailTransport()
 })

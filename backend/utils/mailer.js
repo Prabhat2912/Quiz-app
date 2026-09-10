@@ -30,7 +30,6 @@ function getTransporter() {
 
 async function sendOtpEmail(to, otp, purpose) {
     if (!smtpConfigured()) {
-        console.log(`[OTP:${purpose}] email not configured — code for ${to}: ${otp}`)
         return { sent: false }
     }
     const addr = process.env.MAIL_FROM || process.env.SMTP_USER || process.env.EMAIL_USER;
@@ -40,7 +39,7 @@ async function sendOtpEmail(to, otp, purpose) {
     const isReset = purpose === "reset"
     const action = isReset ? "reset your password" : "verify your email address"
     const kicker = isReset ? "field log · recovery" : "field log · ownership check"
-    const info = await getTransporter().sendMail({
+    await getTransporter().sendMail({
         from,
         to,
         subject: isReset ? "Reset your Quiz App password" : "Verify your Quiz App email",
@@ -56,26 +55,7 @@ async function sendOtpEmail(to, otp, purpose) {
             + `<p style="color:#5F6E64;font-size:12px;margin:4px 0 0">If you did not request this, you can safely ignore this email.</p>`
             + `</div></div></div>`,
     })
-    console.log(`[mail] accepted by Gmail for ${to} (id: ${info.messageId}) — if it never lands, check spam.`)
     return { sent: true }
 }
 
-module.exports = { sendOtpEmail, smtpConfigured, verifyMailTransport }
-
-// Checks the SMTP login at boot and logs one unmistakable line so a bad
-// app password (the usual Gmail failure) is visible immediately.
-async function verifyMailTransport() {
-    if (!smtpConfigured()) {
-        console.log("[mail] delivery NOT configured — OTP codes will only print to this console.")
-        return { ok: false, reason: "not-configured" }
-    }
-    try {
-        await getTransporter().verify()
-        console.log("[mail] delivery ready — OTP emails will send.")
-        return { ok: true }
-    } catch (error) {
-        console.error(`[mail] delivery FAILED: ${error.message}`)
-        console.error("[mail] Gmail fix: use an App Password (Google Account → Security → 2-Step Verification → App passwords), not your login password.")
-        return { ok: false, reason: error.message }
-    }
-}
+module.exports = { sendOtpEmail, smtpConfigured }

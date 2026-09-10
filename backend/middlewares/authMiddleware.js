@@ -21,6 +21,9 @@ module.exports = function (req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Express 5 no longer initializes req.body to {} for bodyless requests
+    // (every authed GET plus POSTs like get-user-info), so guard it.
+    req.body = req.body || {};
     req.body.userid = decoded.userid;
     next();
   }
