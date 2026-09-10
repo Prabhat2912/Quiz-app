@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
 import { sendVerificationOtp, verifyEmail } from "../apicalls/users";
 
@@ -11,6 +12,7 @@ const RESEND_COOLDOWN = 30;
  * Props: email, onVerified(), onBack().
  */
 function VerifyEmailOtp({ email, onVerified, onBack }) {
+  const { t } = useTranslation();
   const [otp, setOtp] = useState("");
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
   // After one failed attempt auto-submit stays off: retries are manual.
@@ -20,8 +22,8 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
 
   useEffect(() => {
     if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
+    const tmr = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(tmr);
   }, [cooldown]);
 
   const doSubmit = async (code) => {
@@ -38,7 +40,7 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
         setAutoLocked(true);
         message.error(
           res.attemptsLeft !== undefined
-            ? `${res.message} (${res.attemptsLeft} tries left)`
+            ? `${res.message} (${t("auth.triesLeft", { count: res.attemptsLeft })})`
             : res.message
         );
       }
@@ -55,7 +57,7 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
     e.preventDefault();
     const code = otp.trim();
     if (code.length !== 6) {
-      return message.error("Enter the 6-digit code.");
+      return message.error(t("verify.needCode"));
     }
     doSubmit(code);
   };
@@ -87,15 +89,14 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
 
   return (
     <div>
-      <p className="nb-data text-xs text-soft">field log · ownership check</p>
-      <h2 className="font-display font-extrabold text-2xl mt-1">Check your inbox</h2>
+      <p className="nb-data text-xs text-soft">{t("verify.kicker")}</p>
+      <h2 className="font-display font-extrabold text-2xl mt-1">{t("verify.title")}</h2>
       <p className="text-sm text-soft mt-1">
-        A 6-digit code was sent to <span className="font-semibold text-ink">{email}</span>.
-        It expires in 10 minutes.
+        {t("verify.sub", { email })}
       </p>
       <form onSubmit={submit} className="mt-4">
         <label htmlFor="verify-otp" className="text-sm font-medium">
-          Verification code
+          {t("verify.codeLabel")}
         </label>
         <input
           id="verify-otp"
@@ -108,7 +109,7 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
           onChange={(e) => handleChange(e.target.value)}
         />
         <button type="submit" className="nb-btn w-full mt-3">
-          Verify email
+          {t("verify.submit")}
         </button>
       </form>
       <div className="flex items-center justify-between mt-3 text-sm">
@@ -117,7 +118,7 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
           onClick={onBack}
           className="text-soft hover:text-accent"
         >
-          ← Back
+          {t("verify.back")}
         </button>
         <button
           type="button"
@@ -125,7 +126,7 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
           disabled={cooldown > 0}
           className="text-accent font-semibold hover:underline disabled:opacity-50 disabled:no-underline"
         >
-          {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
+          {cooldown > 0 ? t("verify.resendIn", { n: cooldown }) : t("verify.resend")}
         </button>
       </div>
     </div>

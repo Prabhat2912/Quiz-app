@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { message } from "antd";
+import { useTranslation } from "react-i18next";
 
 function InstallPWA() {
+  const { t } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallButton, setShowInstallButton] = useState(false);
 
@@ -39,7 +41,7 @@ function InstallPWA() {
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === "accepted") {
-      message.success("App installed successfully!");
+      message.success(t("pwa.installed"));
     }
 
     // Clear the deferredPrompt for later use
@@ -78,17 +80,17 @@ function InstallPWA() {
           />
           <div>
             <h3 className="font-display font-bold">
-              Install Quiz App
+              {t("pwa.title")}
             </h3>
             <p className="text-sm text-soft">
-              Add to your home screen for quick access
+              {t("pwa.sub")}
             </p>
           </div>
         </div>
         <button
           onClick={handleDismiss}
           className="text-soft hover:text-accent"
-          aria-label="Dismiss"
+          aria-label={t("pwa.dismiss")}
         >
           <i className="ri-close-line text-xl"></i>
         </button>
@@ -99,13 +101,13 @@ function InstallPWA() {
           className="flex-1 nb-btn"
         >
           <i className="ri-download-line mr-1"></i>
-          Install
+          {t("pwa.install")}
         </button>
         <button
           onClick={handleDismiss}
           className="flex-1 nb-btn-ghost"
         >
-          Not Now
+          {t("pwa.later")}
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getUserProgress, getUserProgressById, getAllReports } from "../../../apicalls/reports";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import PageTitle from "../../../components/PageTitle";
@@ -27,6 +28,7 @@ function UserInspectionPage() {
   const [reconstructed, setReconstructed] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Fallback for backends that predate the inspection endpoint:
   // rebuild the logbook from the legacy reports feed, which carries
@@ -134,7 +136,7 @@ function UserInspectionPage() {
       // them); stop direct-URL access early with a clear message.
       if (!isSelf && !me?.isAdmin) {
         dispatch(HideLoading());
-        setFailMessage("Only admins can open other learners' logbooks.");
+        setFailMessage(t("inspect.denied"));
         setFailed(true);
         return;
       }
@@ -158,30 +160,29 @@ function UserInspectionPage() {
             setReconstructed(true);
             return;
           }
-          setFailMessage("No attempts on record for this learner.");
+          setFailMessage(t("inspect.noRuns"));
         } else {
-          setFailMessage(legacy.message || res.message || "Could not open this logbook");
+          setFailMessage(legacy.message || res.message || t("inspect.failed"));
         }
         setFailed(true);
       } catch (e) {
         dispatch(HideLoading());
         setFailed(true);
-        setFailMessage("Could not open this logbook");
+        setFailMessage(t("inspect.failed"));
       }
     };
     if (userId) fetch();
-  }, [dispatch, userId, me?._id]);
+  }, [dispatch, userId, me?._id, me?.isAdmin, t]);
 
   if (failed) {
     return (
       <div>
-        <PageTitle title="Logbook unavailable" sub="This record could not be opened." />
+        <PageTitle title={t("inspect.unavailable")} sub={t("inspect.unavailableSub")} />
         <div className="nb-sheet p-6 text-sm text-soft">
-          {failMessage ||
-            "The backend refused this request. Inspecting other learners needs an admin account."}
+          {failMessage || t("inspect.failed")}
         </div>
         <button className="nb-btn-ghost mt-4" onClick={() => navigate("/leaderboard")}>
-          Back to standings
+          {t("inspect.back")}
         </button>
       </div>
     );
@@ -190,7 +191,7 @@ function UserInspectionPage() {
   if (!data) {
     return (
       <div className="flex justify-center items-center h-64 text-soft">
-        Opening logbook…
+        {t("inspect.loading")}
       </div>
     );
   }
@@ -203,8 +204,8 @@ function UserInspectionPage() {
     <div>
       <PageTitle
         title={user.name}
-        sub={`${user.email} · filed ${stats.totalQuizzesCompleted} runs${
-          reconstructed ? " · reconstructed from reports feed" : ""
+        sub={`${user.email} · ${t("inspect.runsFiled", { count: stats.totalQuizzesCompleted })}${
+          reconstructed ? ` · ${t("inspect.reconstructed")}` : ""
         }`}
       />
 
@@ -219,43 +220,44 @@ function UserInspectionPage() {
           <h2 className="font-display font-extrabold text-xl truncate">{user.name}</h2>
           <p className="text-sm text-soft truncate">{user.email}</p>
           <p className="nb-data text-xs text-soft mt-1">
-            Lv {user.level || 1} · {(user.xp || 0).toLocaleString()} XP ·{" "}
-            {(user.badges || []).length} specimens · streak{" "}
-            {user.stats?.currentStreak || 0}d (best {user.stats?.longestStreak || 0}d)
+            {t("common.levelShort", { n: user.level || 1 })} ·{" "}
+            {t("common.xp", { n: (user.xp || 0).toLocaleString() })} ·{" "}
+            {(user.badges || []).length} ·{" "}
+            {t("common.day_other", { count: user.stats?.currentStreak || 0 })}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         <LevelProgressCard xp={user.xp || 0} level={user.level || 1} />
-        <section aria-label="Totals" className="nb-sheet p-6">
-          <h3 className="font-display font-bold">Runs filed</h3>
+        <section aria-label={t("inspect.totals")} className="nb-sheet p-6">
+          <h3 className="font-display font-bold">{t("inspect.totals")}</h3>
           <p className="nb-data text-4xl font-bold mt-1">{stats.totalQuizzesCompleted}</p>
           <p className="nb-data text-xs text-soft mt-2">
-            {stats.totalQuestionsAttempted} questions · {stats.perfectScores || 0} perfect ·{" "}
-            {stats.passedQuizzes || 0} passed
+            {stats.totalQuestionsAttempted} · {stats.perfectScores || 0} ·{" "}
+            {stats.passedQuizzes || 0}
           </p>
         </section>
-        <section aria-label="Accuracy" className="nb-sheet p-6">
-          <h3 className="font-display font-bold">Accuracy</h3>
+        <section aria-label={t("inspect.accuracy")} className="nb-sheet p-6">
+          <h3 className="font-display font-bold">{t("inspect.accuracy")}</h3>
           <p className="nb-data text-4xl font-bold mt-1">
             {Number(stats.accuracy || 0).toFixed(1)}
             <span className="text-base font-medium text-soft">%</span>
           </p>
           <p className="nb-data text-xs text-soft mt-2">
-            {stats.totalCorrectAnswers} correct answers entered
+            {stats.totalCorrectAnswers}
           </p>
         </section>
       </div>
 
-      <section aria-label="Badges" className="nb-sheet mt-4 p-6">
-        <h3 className="font-display font-extrabold text-lg">Specimen cabinet</h3>
+      <section aria-label={t("inspect.specimens")} className="nb-sheet mt-4 p-6">
+        <h3 className="font-display font-extrabold text-lg">{t("inspect.specimens")}</h3>
         <p className="nb-data text-xs text-soft mt-1 mb-4">
-          {(user.badges || []).length} affixed
+          {t("inspect.affixed", { n: (user.badges || []).length })}
         </p>
         {levelBadges.length > 0 && (
           <>
-            <h4 className="font-display font-bold text-sm mb-3">Level milestones</h4>
+            <h4 className="font-display font-bold text-sm mb-3">{t("inspect.levelMilestones")}</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               {levelBadges.map((b) => (
                 <BadgeCard key={b.name} badge={b} locked={!b.earned} />
@@ -263,7 +265,7 @@ function UserInspectionPage() {
             </div>
           </>
         )}
-        <h4 className="font-display font-bold text-sm mb-3">Field achievements</h4>
+        <h4 className="font-display font-bold text-sm mb-3">{t("inspect.fieldAchievements")}</h4>
         {achievementBadges.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {achievementBadges.map((b, i) => (
@@ -275,12 +277,12 @@ function UserInspectionPage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-soft">Nothing affixed yet.</p>
+          <p className="text-sm text-soft">{t("inspect.noBadges")}</p>
         )}
       </section>
 
-      <section aria-label="Recent runs" className="nb-sheet mt-4 p-6">
-        <h3 className="font-display font-extrabold text-lg">Recent runs</h3>
+      <section aria-label={t("inspect.recentRuns")} className="nb-sheet mt-4 p-6">
+        <h3 className="font-display font-extrabold text-lg">{t("inspect.recentRuns")}</h3>
         {(recentScores || []).length > 0 ? (
           <ol className="mt-2">
             {recentScores.map((score, index) => (
@@ -301,19 +303,21 @@ function UserInspectionPage() {
                       score.verdict === "Pass" ? "nb-stamp-pass" : "nb-stamp-fail"
                     }`}
                   >
-                    {score.verdict}
+                    {score.verdict === "Pass"
+                      ? t("exam.verdictPass")
+                      : t("exam.verdictFail")}
                   </span>
                 </div>
               </li>
             ))}
           </ol>
         ) : (
-          <p className="text-sm text-soft mt-2">No runs on record.</p>
+          <p className="text-sm text-soft mt-2">{t("inspect.noRecent")}</p>
         )}
       </section>
 
-      <section aria-label="Subjects" className="nb-sheet mt-4 p-6">
-        <h3 className="font-display font-extrabold text-lg">Subject readings</h3>
+      <section aria-label={t("inspect.subjects")} className="nb-sheet mt-4 p-6">
+        <h3 className="font-display font-extrabold text-lg">{t("inspect.subjects")}</h3>
         {categoryPerformance && Object.keys(categoryPerformance).length > 0 ? (
           <div className="space-y-4 mt-2">
             {Object.entries(categoryPerformance).map(([category, c]) => (
@@ -321,7 +325,7 @@ function UserInspectionPage() {
                 <div className="flex justify-between items-baseline">
                   <h4 className="font-display font-bold">{category}</h4>
                   <span className="nb-data text-xs text-soft">
-                    {c.attempted} run{c.attempted !== 1 ? "s" : ""} ·{" "}
+                    {t("common.run_other", { count: c.attempted })} ·{" "}
                     {Number(c.averageScore || 0).toFixed(0)}%
                   </span>
                 </div>
@@ -331,7 +335,7 @@ function UserInspectionPage() {
                   aria-valuenow={Math.round(Number(c.averageScore) || 0)}
                   aria-valuemin="0"
                   aria-valuemax="100"
-                  aria-label={`${category} average score`}
+                  aria-label={t("progress.subjectAria", { category })}
                 >
                   <div style={{ "--fill": (Number(c.averageScore) || 0) / 100 }} />
                 </div>
@@ -339,7 +343,7 @@ function UserInspectionPage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-soft mt-2">No subject data.</p>
+          <p className="text-sm text-soft mt-2">{t("inspect.noSubjects")}</p>
         )}
       </section>
     </div>

@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { Modal } from "antd";
+import { useTranslation } from "react-i18next";
+import { translateBadge } from "../../i18n";
 
 /**
  * Result record modal shown after quiz submit when XP/level/badges changed.
@@ -16,6 +18,7 @@ function LevelUpModal({
   totalXP = 0,
   onViewProgress,
 }) {
+  const { t } = useTranslation();
   useEffect(() => {
     if (visible && leveledUp) {
       try {
@@ -46,40 +49,43 @@ function LevelUpModal({
       <div className="text-center p-2">
         <div key={String(visible)} className="nb-stamp-land inline-block">
           <span className="nb-stamp nb-stamp-pass text-base! px-5! py-2!">
-            Recorded
+            {t("modal.recorded")}
           </span>
         </div>
         <h2 className="font-display font-extrabold text-2xl mt-3">
-          Run complete
+          {t("modal.runComplete")}
         </h2>
         <p className="nb-data text-3xl font-bold text-accent mt-2">
-          +{xpEarned} <span className="text-base font-medium">XP</span>
+          +{xpEarned} <span className="text-base font-medium">{t("modal.xpUnit")}</span>
         </p>
         <p className="nb-data text-xs text-soft">
-          total {(totalXP || 0).toLocaleString()} XP
+          {t("modal.totalOf", { n: (totalXP || 0).toLocaleString() })}
         </p>
 
         {leveledUp && (
           <p className="nb-data text-sm font-bold mt-4">
-            Level {oldLevel} → {newLevel}
+            {t("modal.levelUp", { a: oldLevel, b: newLevel })}
           </p>
         )}
 
         {newBadges && newBadges.length > 0 && (
           <div className="mt-4 pt-3 border-t border-rule">
             <h3 className="font-display font-bold text-sm mb-2">
-              Specimens affixed
+              {t("modal.specimens")}
             </h3>
             <div className="flex flex-wrap justify-center gap-2">
-              {newBadges.map((b, i) => (
-                <span
-                  key={i}
-                  className="nb-specimen px-3 py-1.5 text-sm font-semibold"
-                >
-                  {b.icon && !b.icon.startsWith("ri-") ? `${b.icon} ` : ""}
-                  {b.name}
-                </span>
-              ))}
+              {newBadges.map((b, i) => {
+                const shown = translateBadge(t, b);
+                return (
+                  <span
+                    key={i}
+                    className="nb-specimen px-3 py-1.5 text-sm font-semibold"
+                  >
+                    {shown.icon && !shown.icon.startsWith("ri-") ? `${shown.icon} ` : ""}
+                    {shown.name}
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
@@ -87,11 +93,11 @@ function LevelUpModal({
         <div className="flex gap-2 justify-center mt-5">
           {onViewProgress && (
             <button className="nb-btn" onClick={onViewProgress}>
-              Open logbook
+              {t("modal.openLogbook")}
             </button>
           )}
           <button className="nb-btn-ghost" onClick={onClose}>
-            Continue
+            {t("common.continue")}
           </button>
         </div>
       </div>

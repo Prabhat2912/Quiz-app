@@ -11,12 +11,14 @@ import {
   getExamById,
 } from "../../../apicalls/exams";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import AddEditQuestion from "./AddEditQuestion";
 
 function AddEditExam() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { id } = useParams();
   const [examData, setExamData] = useState();
   const [showAddEditQuestionModal, setShowAddEditQuestionModal] =
@@ -29,6 +31,9 @@ function AddEditExam() {
       if (Array.isArray(values.category)) {
         values.category = values.category[0];
       }
+      // Same minutes→seconds conversion as manual save.
+      values.duration =
+        Math.min(15, Math.max(1, Math.round(Number(values.duration) || 1))) * 60;
       if (
         !values.name ||
         !values.category ||
@@ -37,7 +42,7 @@ function AddEditExam() {
         !values.passingMarks
       ) {
         message.error(
-          "Please fill in all exam details before creating with AI"
+          "Please fill in all exam details before creating with AI",
         );
         return;
       }
@@ -48,7 +53,7 @@ function AddEditExam() {
 
       if (response.success) {
         message.success(
-          `${response.message} (${response.data.questionsCount} questions created)`
+          `${response.message} (${response.data.questionsCount} questions created)`,
         );
         navigate("/admin/exams");
       } else {
@@ -66,6 +71,9 @@ function AddEditExam() {
       if (Array.isArray(values.category)) {
         values.category = values.category[0];
       }
+      // Authoring unit is minutes (1–15); storage and the timer use seconds.
+      values.duration =
+        Math.min(15, Math.max(1, Math.round(Number(values.duration) || 1))) * 60;
       let response;
       if (id) {
         response = await editExam(values, id);
@@ -102,7 +110,7 @@ function AddEditExam() {
         message.error(error.message);
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   useEffect(() => {
@@ -136,11 +144,11 @@ function AddEditExam() {
 
   const questionColumns = [
     {
-      title: "Question",
+      title: t("exams.qColQuestion"),
       dataIndex: "name",
     },
     {
-      title: "Options",
+      title: t("exams.qColOptions"),
       dataIndex: "options",
       render: (text, record) => {
         return Object.keys(record.options).map((key) => {
@@ -153,7 +161,7 @@ function AddEditExam() {
       },
     },
     {
-      title: "Correct Option",
+      title: t("exams.qColCorrect"),
       dataIndex: "correctOptions", // ✅ fixed: match backend field
       render: (text, record) => {
         const correctOptionsText = Array.isArray(record?.correctOptions)
@@ -165,13 +173,14 @@ function AddEditExam() {
       },
     },
     {
-      title: "Action",
+      title: t("exams.colAction"),
       dataIndex: "action",
       render: (text, record) => {
         return (
           <div className="flex gap-2">
             <i
               className="ri-pencil-line cursor-pointer"
+              title={t("exams.editQuestion")}
               onClick={() => {
                 setSelectedQuestion(record);
                 setShowAddEditQuestionModal(true);
@@ -179,6 +188,7 @@ function AddEditExam() {
             ></i>
             <i
               className="ri-delete-bin-line cursor-pointer"
+              title={t("exams.deleteQuestion")}
               onClick={() => {
                 deleteQuestionById(record._id);
               }}
@@ -195,33 +205,33 @@ function AddEditExam() {
   const detailsBlock = (
     <>
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-bold">The basics</h3>
-        <span className="nb-data text-xs text-soft">form 01</span>
+        <h3 className="font-display font-bold">{t("exams.basics")}</h3>
+        <span className="nb-data text-xs text-soft">{t("exams.formNo")}</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
         <div className="sm:col-span-2">
           <Form.Item
-            label="Exam name"
+            label={t("exams.fieldName")}
             name="name"
-            rules={[{ required: true, message: "Give the experiment a name" }]}
+            rules={[{ required: true, message: t("exams.needName") }]}
           >
-            <input type="text" placeholder="e.g. JavaScript Basics" />
+            <input type="text" placeholder={t("exams.fieldNamePh")} />
           </Form.Item>
         </div>
         <div>
           <Form.Item
-            label="Duration (minutes)"
+            label={t("exams.fieldDuration")}
             name="duration"
-            rules={[{ required: true, message: "Set a duration" }]}
+            rules={[{ required: true, message: t("exams.needDuration") }]}
           >
-            <input type="number" min={1} placeholder="e.g. 30" />
+            <input type="number" min={1} max={15} placeholder={t("exams.fieldDurationPh")} />
           </Form.Item>
         </div>
         <div>
           <Form.Item
-            label="Category"
+            label={t("exams.fieldCategory")}
             name="category"
-            rules={[{ required: true, message: "Pick or create a category" }]}
+            rules={[{ required: true, message: t("exams.needCategory") }]}
           >
             <Select
               showSearch
@@ -229,7 +239,7 @@ function AddEditExam() {
               maxCount={1}
               size="large"
               style={{ width: "100%" }}
-              placeholder="Select or create category"
+                      placeholder={t("exams.fieldCategoryPh")}
             >
               {categories.map((cat) => (
                 <Select.Option key={cat} value={cat}>
@@ -241,20 +251,32 @@ function AddEditExam() {
         </div>
         <div>
           <Form.Item
-            label="Total marks"
+            label={t("exams.fieldTotal")}
             name="totalMarks"
-            rules={[{ required: true, message: "Set total marks" }]}
+            rules={[{ required: true, message: t("exams.needTotal") }]}
           >
-            <input type="number" min={1} placeholder="e.g. 100" />
+            <input type="number" min={1} placeholder={t("exams.fieldTotalPh")} />
           </Form.Item>
         </div>
         <div>
           <Form.Item
-            label="Passing marks"
+            label={t("exams.fieldPassing")}
             name="passingMarks"
-            rules={[{ required: true, message: "Set passing marks" }]}
+            rules={[{ required: true, message: t("exams.needPassing") }]}
           >
-            <input type="number" min={0} placeholder="e.g. 40" />
+            <input type="number" min={0} placeholder={t("exams.fieldPassingPh")} />
+          </Form.Item>
+        </div>
+        <div className="sm:col-span-2">
+          <Form.Item
+            label={t("exams.fieldLanguage")}
+            name="language"
+            rules={[{ required: true, message: t("exams.needLanguage") }]}
+          >
+            <select>
+              <option value="en">{t("exams.langEnglish")}</option>
+              <option value="hi">{t("exams.langHindi")}</option>
+            </select>
           </Form.Item>
         </div>
       </div>
@@ -269,13 +291,13 @@ function AddEditExam() {
                 .then((values) => {
                   handleCreateExamWithAI(values); // ✅ call renamed function
                 })
-                .catch(() => {
-                  message.error("Please fill in all required fields");
-                });
+                        .catch(() => {
+                          message.error(t("exams.needFields"));
+                        });
             }}
           >
             <i className="ri-sparkling-line mr-1" aria-hidden="true"></i>
-            Draft with AI
+            {t("exams.draftAI")}
           </button>
         )}
         <span className="flex-1" aria-hidden="true" />
@@ -284,13 +306,10 @@ function AddEditExam() {
           type="button"
           onClick={() => navigate("/admin/exams")}
         >
-          Cancel
+          {t("common.cancel")}
         </button>
-        <button
-          className="nb-btn py-2! text-sm"
-          type="submit"
-        >
-          {id ? "File amendments" : "Save exam"}
+        <button className="nb-btn py-2! text-sm" type="submit">
+          {id ? t("exams.fileAmendments") : t("exams.saveExam")}
         </button>
       </div>
     </>
@@ -299,34 +318,42 @@ function AddEditExam() {
   return (
     <div>
       <PageTitle
-        title={id ? "Amend experiment" : "File an experiment"}
-        sub={
-          id
-            ? "Correct the filed entries, then review its questions."
-            : "Describe the run first — questions can be filed by hand or drafted by AI."
-        }
+        title={id ? t("exams.editTitle") : t("exams.fileTitle")}
+        sub={id ? t("exams.editSub") : t("exams.fileSub")}
       />
       {(examData || !id) && (
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          initialValues={examData}
-          className="nb-sheet p-6 sm:p-8"
+          initialValues={
+            id && examData
+              ? {
+                  ...examData,
+                  duration: Math.round((examData.duration || 0) / 60),
+                  language: examData.language || "en",
+                }
+              : { language: "en" }
+          }
+          className="nb-sheet nb-form-pad"
         >
-            {id ? (
+          {id ? (
             <Tabs
               defaultActiveKey="1"
               items={[
-                { key: "1", label: "Details", children: detailsBlock },
+                { key: "1", label: t("exams.tabDetails"), children: detailsBlock },
                 {
                   key: "2",
-                  label: `Questions${examData?.questions ? ` (${examData.questions.length})` : ""}`,
+                  label: examData?.questions
+                    ? t("exams.tabQuestionsCount", { n: examData.questions.length })
+                    : t("exams.tabQuestions"),
                   children: (
                     <>
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <p className="nb-data text-xs text-soft">
-                          {examData?.questions?.length || 0} entries filed
+                          {t("exams.entriesFiled", {
+                            n: examData?.questions?.length || 0,
+                          })}
                         </p>
                         <button
                           className="nb-btn py-2! text-sm"
@@ -335,18 +362,21 @@ function AddEditExam() {
                             setShowAddEditQuestionModal(true);
                           }}
                         >
-                          <i className="ri-add-line mr-1" aria-hidden="true"></i>
-                          File a question
+                          <i
+                            className="ri-add-line mr-1"
+                            aria-hidden="true"
+                          ></i>
+                          {t("exams.fileQuestion")}
                         </button>
                       </div>
-                <div className="overflow-x-auto">
-                  <Table
-                    columns={questionColumns}
-                    dataSource={examData?.questions}
-                    className="min-w-[700px]"
-                    rowKey="_id" // ✅ added to prevent React key warning
-                  ></Table>
-                </div>
+                      <div className="overflow-x-auto">
+                        <Table
+                          columns={questionColumns}
+                          dataSource={examData?.questions}
+                          className="min-w-[700px]"
+                          rowKey="_id" // ✅ added to prevent React key warning
+                        ></Table>
+                      </div>
                     </>
                   ),
                 },
@@ -366,6 +396,7 @@ function AddEditExam() {
           selectedQuestion={selectedQuestion}
           setSelectedQuestion={setSelectedQuestion}
           examCategory={examData?.category}
+          examLanguage={examData?.language || "en"}
         />
       )}
     </div>

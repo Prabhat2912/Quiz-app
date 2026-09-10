@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
 import { forgotPassword, verifyResetOtp, resetPassword } from "../apicalls/users";
 
@@ -11,6 +12,7 @@ const RESEND_COOLDOWN = 30;
  * Props: onDone() (back to login), onBack().
  */
 function ForgotPassword({ onDone, onBack }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -25,8 +27,8 @@ function ForgotPassword({ onDone, onBack }) {
 
   useEffect(() => {
     if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
+    const tmr = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(tmr);
   }, [cooldown]);
 
   const sendCode = async (address) => {
@@ -51,7 +53,7 @@ function ForgotPassword({ onDone, onBack }) {
 
   const submitEmail = (e) => {
     e.preventDefault();
-    if (!email.trim()) return message.error("Enter your registered email.");
+    if (!email.trim()) return message.error(t("forgot.needEmail"));
     sendCode(email.trim());
   };
 
@@ -69,7 +71,7 @@ function ForgotPassword({ onDone, onBack }) {
         setAutoLocked(true);
         message.error(
           res.attemptsLeft !== undefined
-            ? `${res.message} (${res.attemptsLeft} tries left)`
+            ? `${res.message} (${t("auth.triesLeft", { count: res.attemptsLeft })})`
             : res.message
         );
       }
@@ -85,7 +87,7 @@ function ForgotPassword({ onDone, onBack }) {
   const submitOtp = (e) => {
     e.preventDefault();
     const code = otp.trim();
-    if (code.length !== 6) return message.error("Enter the 6-digit code.");
+    if (code.length !== 6) return message.error(t("forgot.needCode"));
     doVerifyOtp(code);
   };
 
@@ -100,10 +102,10 @@ function ForgotPassword({ onDone, onBack }) {
   const submitNewPassword = async (e) => {
     e.preventDefault();
     if (password.length < 6) {
-      return message.error("Password must be at least 6 characters.");
+      return message.error(t("forgot.shortPassword"));
     }
     if (password !== confirm) {
-      return message.error("Passwords do not match.");
+      return message.error(t("forgot.mismatch"));
     }
     try {
       dispatch(ShowLoading());
@@ -124,16 +126,16 @@ function ForgotPassword({ onDone, onBack }) {
 
   return (
     <div>
-      <p className="nb-data text-xs text-soft">field log · recovery</p>
-      <h2 className="font-display font-extrabold text-2xl mt-1">Reset password</h2>
+      <p className="nb-data text-xs text-soft">{t("forgot.kicker")}</p>
+      <h2 className="font-display font-extrabold text-2xl mt-1">{t("forgot.title")}</h2>
 
       {step === "email" && (
         <>
           <p className="text-sm text-soft mt-1">
-            Enter your registered email and a 6-digit code will be sent to it.
+            {t("forgot.emailSub")}
           </p>
           <form onSubmit={submitEmail} className="mt-4">
-            <label htmlFor="fp-email" className="text-sm font-medium">Email</label>
+            <label htmlFor="fp-email" className="text-sm font-medium">{t("forgot.emailLabel")}</label>
             <input
               id="fp-email"
               type="email"
@@ -144,7 +146,7 @@ function ForgotPassword({ onDone, onBack }) {
               onChange={(e) => setEmail(e.target.value)}
             />
             <button type="submit" className="nb-btn w-full mt-3">
-              Send code
+              {t("forgot.sendCode")}
             </button>
           </form>
         </>
@@ -153,11 +155,10 @@ function ForgotPassword({ onDone, onBack }) {
       {step === "otp" && (
         <>
           <p className="text-sm text-soft mt-1">
-            Code sent to <span className="font-semibold text-ink">{email}</span>.
-            It expires in 10 minutes.
+            {t("forgot.otpSub", { email })}
           </p>
           <form onSubmit={submitOtp} className="mt-4">
-            <label htmlFor="fp-otp" className="text-sm font-medium">Verification code</label>
+            <label htmlFor="fp-otp" className="text-sm font-medium">{t("forgot.codeLabel")}</label>
             <input
               id="fp-otp"
               className="nb-data mt-1 text-center text-xl! tracking-[0.4em]!"
@@ -169,7 +170,7 @@ function ForgotPassword({ onDone, onBack }) {
               onChange={(e) => handleOtpChange(e.target.value)}
             />
             <button type="submit" className="nb-btn w-full mt-3">
-              Verify code
+              {t("forgot.verifyCode")}
             </button>
           </form>
           <div className="mt-3 text-sm text-right">
@@ -179,7 +180,7 @@ function ForgotPassword({ onDone, onBack }) {
               disabled={cooldown > 0}
               className="text-accent font-semibold hover:underline disabled:opacity-50 disabled:no-underline"
             >
-              {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
+              {cooldown > 0 ? t("forgot.resendIn", { n: cooldown }) : t("forgot.resend")}
             </button>
           </div>
         </>
@@ -188,10 +189,10 @@ function ForgotPassword({ onDone, onBack }) {
       {step === "reset" && (
         <>
           <p className="text-sm text-soft mt-1">
-            Code accepted. Choose a new password.
+            {t("forgot.resetSub")}
           </p>
           <form onSubmit={submitNewPassword} className="mt-4">
-            <label htmlFor="fp-new" className="text-sm font-medium">New password</label>
+            <label htmlFor="fp-new" className="text-sm font-medium">{t("forgot.newPassword")}</label>
             <input
               id="fp-new"
               type="password"
@@ -202,7 +203,7 @@ function ForgotPassword({ onDone, onBack }) {
               onChange={(e) => setPassword(e.target.value)}
             />
             <label htmlFor="fp-confirm" className="text-sm font-medium mt-3 block">
-              Confirm new password
+              {t("forgot.confirmNew")}
             </label>
             <input
               id="fp-confirm"
@@ -214,7 +215,7 @@ function ForgotPassword({ onDone, onBack }) {
               onChange={(e) => setConfirm(e.target.value)}
             />
             <button type="submit" className="nb-btn w-full mt-3">
-              Set new password
+              {t("forgot.setPassword")}
             </button>
           </form>
         </>
@@ -225,7 +226,7 @@ function ForgotPassword({ onDone, onBack }) {
         onClick={onBack}
         className="text-sm text-soft hover:text-accent mt-3"
       >
-        ← Back to login
+        {t("forgot.backToLogin")}
       </button>
     </div>
   );

@@ -3,41 +3,55 @@ import PageTitle from "../../../components/PageTitle";
 import { Table, message } from "antd";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getAllAttemptsByUser } from "../../../apicalls/reports";
 
 function ReportsPage() {
   const [reportsData, setReportsData] = useState([]);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const columns = [
     {
-      title: "Exam Name",
+      title: t("reports.colExam"),
       dataIndex: "examName",
-      render: (text, record) => <>{record.exam.name}</>,
+      render: (text, record) => (
+        <button
+          className="hover:text-accent hover:underline text-left font-semibold"
+          onClick={() => navigate(`/user/reports/${record._id}`)}
+          title={t("reports.openReview")}
+        >
+          {record.exam?.name || t("reports.deletedExam")}
+        </button>
+      ),
     },
     {
-      title: "Date",
+      title: t("reports.colDate"),
       dataIndex: "date",
       render: (text, record) => <>{record.createdAt}</>,
     },
     {
-      title: "Total Marks",
+      title: t("reports.colTotal"),
       dataIndex: "totalMarks",
-      render: (text, record) => <>{record.exam.totalMarks}</>,
+      render: (text, record) => <>{record.exam?.totalMarks}</>,
     },
     {
-      title: "Passing Marks",
+      title: t("reports.colPassing"),
       dataIndex: "passingMarks",
-      render: (text, record) => <>{record.exam.passingMarks}</>,
+      render: (text, record) => <>{record.exam?.passingMarks}</>,
     },
     {
-      title: "Obtained Marks",
+      title: t("reports.colObtained"),
       dataIndex: "obtainedMarks",
-      render: (text, record) => <>{record.result.correctAnswers.length}</>,
+      render: (text, record) => <>{record.result?.correctAnswers?.length || 0}</>,
     },
     {
-      title: "Verdict",
+      title: t("reports.colVerdict"),
       dataIndex: "verdict",
-      render: (text, record) => <>{record.result.verdict}</>,
+      render: (text, record) => (
+        <>{record.result?.verdict === "Pass" ? t("exam.verdictPass") : t("exam.verdictFail")}</>
+      ),
     },
   ];
   useEffect(() => {
@@ -62,18 +76,18 @@ function ReportsPage() {
           message.success(response.message);
           console.log(response.data);
         } else {
-          message.error(response.message || "Failed to fetch reports");
+          message.error(response.message || t("reports.fetchFail"));
         }
       } catch (error) {
         dispatch(HideLoading());
         console.error("Error fetching reports:", error);
 
         if (error.message === "Request timeout") {
-          message.error("Request timed out. Please try again later.");
+          message.error(t("reports.timeout"));
         } else if (error.code === "NETWORK_ERROR") {
-          message.error("Network error. Please check your connection.");
+          message.error(t("reports.networkError"));
         } else {
-          message.error(error.message || "Failed to fetch reports");
+          message.error(error.message || t("reports.fetchFail"));
         }
       }
     };
@@ -82,13 +96,13 @@ function ReportsPage() {
   }, [dispatch]);
   return (
     <div className="w-full">
-      <PageTitle title="Reports" />
-      <div className="divider"></div>
+      <PageTitle title={t("reports.title")} />
       <div className="overflow-x-auto">
         <Table
           columns={columns}
           className="mt-2 min-w-[700px] "
           dataSource={reportsData}
+          rowKey="_id"
         />
       </div>
     </div>

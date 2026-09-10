@@ -9,6 +9,8 @@ import { addReport } from "../../../apicalls/reports";
 import { getUserInfo } from "../../../apicalls/users";
 import { SetUser } from "../../../redux/usersSlice";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { translateBadge } from "../../../i18n";
 import LevelUpModal from "../../../components/gamification/LevelUpModal";
 
 function WriteExam() {
@@ -31,6 +33,7 @@ function WriteExam() {
   const [timeUp, setTimeUp] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
   const { user } = useSelector((state) => state.users);
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const getExamDataById = async (id) => {
@@ -89,10 +92,25 @@ function WriteExam() {
         verdict,
       };
       setResult(tempResult);
+      // Per-question picks for the attempt review (stored on the report).
+      const detailedAnswers = questions.map((question, index) => {
+        const selected = selectedOptions[index] || [];
+        const correct = question.correctOptions || [question.correctOption];
+        return {
+          questionId: question._id,
+          selectedOptions: selected,
+          correctOptions: correct,
+          isCorrect:
+            correct.every((option) => selected.includes(option)) &&
+            selected.length === correct.length,
+          explanation: question.explanation || "",
+        };
+      });
       dispatch(ShowLoading());
       const response = await addReport({
         exam: id,
         result: tempResult,
+        answers: detailedAnswers,
         user: user._id,
       });
       dispatch(HideLoading());
@@ -102,7 +120,7 @@ function WriteExam() {
           setGamification(response.data);
           setShowCelebration(true);
         } else {
-          message.success("Quiz completed!");
+          message.success(t("exam.quizDone"));
         }
 
         // Refresh user data to update XP/Level in header
@@ -190,7 +208,7 @@ function WriteExam() {
     examData && (
       <div className="mt-2 h-full">
         <p className="nb-data text-xs text-soft text-center">
-          experiment file · {examData.category}
+          {t("exam.fileLabel")} · {examData.category}
         </p>
         <h1 className="text-center font-display font-extrabold text-2xl sm:text-3xl mt-1">{examData.name}</h1>
         <div className="divider mt-3"></div>
@@ -208,14 +226,14 @@ function WriteExam() {
         {view === "questions" && questions.length > 0 && (
           <div className="flex flex-col gap-4 mt-4">
             <div className="flex items-center gap-3">
-              <div className="nb-meter h-2.5 flex-1" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin="0" aria-valuemax="100" aria-label="Exam progress">
+              <div className="nb-meter h-2.5 flex-1" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin="0" aria-valuemax="100" aria-label={t("exam.progressLabel")}>
                 <div
                   style={{ "--fill": progress / 100 }}
                 />
               </div>
-              <span className="nb-data text-xs text-soft whitespace-nowrap">
-                {selectedQuestionIndex + 1}/{questions.length}
-              </span>
+                <span className="nb-data text-xs text-soft whitespace-nowrap">
+                  {t("exam.ofQuestions", { a: selectedQuestionIndex + 1, b: questions.length })}
+                </span>
             </div>
 
             <div className="flex flex-wrap justify-between items-start gap-2">
@@ -224,19 +242,41 @@ function WriteExam() {
                   Q{selectedQuestionIndex + 1}
                 </span>
                 {questions[selectedQuestionIndex].name}{" "}
-                {questions[selectedQuestionIndex]?.correctOptions?.length >
-                  1 && (
-                  <span className="nb-chip">multiple correct</span>
+                {(questions[selectedQuestionIndex]?.correctOptions?.length || 1) >
+                1 ? (
+                  <span className="nb-data text-[11px] font-bold uppercase tracking-wider bg-accent text-white dark:text-[#06231a] px-2 py-1 rounded-md">
+                    {t("exam.multiBadge", {
+                      n: questions[selectedQuestionIndex].correctOptions.length,
+                    })}
+                  </span>
+                ) : (
+                  <span className="nb-data text-[11px] font-bold uppercase tracking-wider border border-rule text-soft px-2 py-1 rounded-full">
+                    {t("exam.singleBadge")}
+                  </span>
                 )}
               </h2>
-              <div className="nb-data text-sm font-semibold text-accent whitespace-nowrap" role="timer" aria-label="Time remaining">
+              <div className="nb-data text-sm font-semibold text-accent whitespace-nowrap" role="timer" aria-label={t("exam.timer")}>
                 <i className="ri-timer-line mr-1" aria-hidden="true"></i>
-                {secondsLeft}s left
+                {t("exam.timeLeft", {
+                  time: `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}`,
+                })}
               </div>
             </div>
-            <div className="flex flex-col gap-2">
+            <div
+              className="flex flex-col gap-2"
+              role="group"
+              aria-label={
+                (questions[selectedQuestionIndex]?.correctOptions?.length || 1) > 1
+                  ? t("exam.groupMulti", {
+                      n: questions[selectedQuestionIndex].correctOptions.length,
+                    })
+                  : t("exam.groupSingle")
+              }
+            >
               {Object.keys(questions[selectedQuestionIndex].options).map(
                 (option, index) => {
+                  const multi =
+                    (questions[selectedQuestionIndex]?.correctOptions?.length || 1) > 1;
                   const isSelected = (
                     selectedOptions[selectedQuestionIndex] || []
                   ).includes(option);
@@ -276,17 +316,26 @@ function WriteExam() {
                         }
                       }}
                     >
-                      <span className="nb-data text-sm font-bold text-accent w-7 shrink-0">
+                      <span
+                        aria-hidden="true"
+                        className={`nb-data text-sm font-bold w-7 h-7 shrink-0 flex items-center justify-center border ${
+                          multi ? "rounded-md" : "rounded-full"
+                        } ${
+                          isSelected
+                            ? "bg-accent border-accent text-white dark:text-[#06231a]"
+                            : "border-rule text-accent"
+                        }`}
+                      >
                         {option}
                       </span>
                       <span className="text-[15px]">
                         {questions[selectedQuestionIndex].options[option]}
                       </span>
                       {submitted && isCorrectOption && (
-                        <i className="ri-check-line ml-auto text-pass" aria-label="Correct option"></i>
+                        <i className="ri-check-line ml-auto text-pass" aria-label={t("exam.correctOption")}></i>
                       )}
                       {submitted && isSelected && !isCorrectOption && (
-                        <i className="ri-close-line ml-auto text-fail" aria-label="Wrong selection"></i>
+                        <i className="ri-close-line ml-auto text-fail" aria-label={t("exam.wrongSelection")}></i>
                       )}
                     </button>
                   );
@@ -303,7 +352,9 @@ function WriteExam() {
                       : "nb-stamp-fail"
                   }`}
                 >
-                  {currentAnswerResult}
+                  {currentAnswerResult === "Correct"
+                    ? t("exam.verdictCorrect")
+                    : t("exam.verdictWrong")}
                 </p>
 
                 {selectedQuestionIndex < questions.length - 1 && (
@@ -315,7 +366,7 @@ function WriteExam() {
                       setSubmitted(false);
                     }}
                   >
-                    Next question
+                    {t("exam.nextQuestion")}
                   </button>
                 )}
                 {selectedQuestionIndex === questions.length - 1 && (
@@ -326,7 +377,7 @@ function WriteExam() {
                       setTimeUp(true);
                     }}
                   >
-                    File the run
+                    {t("exam.fileRun")}
                   </button>
                 )}
               </div>
@@ -336,7 +387,7 @@ function WriteExam() {
                   className="nb-btn w-44 mt-2"
                   onClick={handleAnswerSubmit}
                 >
-                  Log answer
+                  {t("exam.logAnswer")}
                 </button>
               </div>
             )}
@@ -346,44 +397,49 @@ function WriteExam() {
           <div className="flex justify-center mt-6">
             <div className="nb-sheet p-6 sm:p-8 w-full max-w-lg">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-display font-extrabold text-xl">Run record</h2>
+                <h2 className="font-display font-extrabold text-xl">{t("exam.resultTitle")}</h2>
                 <span
                   className={`nb-stamp ${
                     result.verdict === "Pass" ? "nb-stamp-pass" : "nb-stamp-fail"
                   }`}
                 >
-                  {result.verdict}
+                  {result.verdict === "Pass" ? t("exam.verdictPass") : t("exam.verdictFail")}
                 </span>
               </div>
               {gamification && (
                 <div className="nb-specimen p-4 mt-4">
                   <p className="nb-data text-2xl font-bold text-accent">
-                    +{gamification.xpEarned} <span className="text-sm font-medium">XP entered</span>
+                    +{gamification.xpEarned} <span className="text-sm font-medium">{t("exam.xpEntered")}</span>
                   </p>
                   {gamification.xpBreakdown && (
                     <p className="nb-data text-xs text-soft mt-1">
-                      correct +{gamification.xpBreakdown.perCorrect}
+                      {t("exam.breakCorrect", { n: gamification.xpBreakdown.perCorrect })}
                       {gamification.xpBreakdown.pass
-                        ? ` · pass +${gamification.xpBreakdown.pass}`
+                        ? ` · ${t("exam.breakPass", { n: gamification.xpBreakdown.pass })}`
                         : ""}
                       {gamification.xpBreakdown.perfect
-                        ? ` · perfect +${gamification.xpBreakdown.perfect}`
+                        ? ` · ${t("exam.breakPerfect", { n: gamification.xpBreakdown.perfect })}`
                         : ""}
                       {gamification.xpBreakdown.streak
-                        ? ` · streak +${gamification.xpBreakdown.streak}`
+                        ? ` · ${t("exam.breakStreak", { n: gamification.xpBreakdown.streak })}`
                         : ""}
                     </p>
                   )}
                   {gamification.leveledUp && (
                     <p className="nb-data text-sm font-bold mt-2">
-                      Level {gamification.oldLevel} → {gamification.newLevel}
+                      {t("exam.levelUp", {
+                        a: gamification.oldLevel,
+                        b: gamification.newLevel,
+                      })}
                     </p>
                   )}
                   {gamification.newBadges?.length > 0 && (
                     <p className="text-sm mt-1">
-                      <span className="text-soft">Specimens: </span>
+                      <span className="text-soft">{t("exam.specimensLabel")}</span>
                       <span className="font-semibold">
-                        {gamification.newBadges.map((b) => b.name).join(", ")}
+                        {gamification.newBadges
+                          .map((b) => translateBadge(t, b).name)
+                          .join(", ")}
                       </span>
                     </p>
                   )}
@@ -391,19 +447,19 @@ function WriteExam() {
               )}
               <dl className="nb-data text-sm mt-4 space-y-1.5">
                 <div className="flex justify-between border-b border-rule pb-1.5">
-                  <dt className="text-soft">total marks</dt>
+                  <dt className="text-soft">{t("exam.totalMarks")}</dt>
                   <dd className="font-bold">{examData.totalMarks}</dd>
                 </div>
                 <div className="flex justify-between border-b border-rule pb-1.5">
-                  <dt className="text-soft">passing marks</dt>
+                  <dt className="text-soft">{t("exam.passingMarks")}</dt>
                   <dd className="font-bold">{examData.passingMarks}</dd>
                 </div>
                 <div className="flex justify-between border-b border-rule pb-1.5">
-                  <dt className="text-soft">obtained</dt>
+                  <dt className="text-soft">{t("exam.obtained")}</dt>
                   <dd className="font-bold">{obtainedMarks}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-soft">wrong answers</dt>
+                  <dt className="text-soft">{t("exam.wrongAnswers")}</dt>
                   <dd className="font-bold">{result.wrongAnswers.length}</dd>
                 </div>
               </dl>
@@ -420,19 +476,19 @@ function WriteExam() {
                     setSecondsLeft(examData.duration);
                   }}
                 >
-                  Run again
+                  {t("exam.runAgain")}
                 </button>
                 <button
                   className="nb-btn-ghost"
                   onClick={() => setView("review")}
                 >
-                  Review entries
+                  {t("exam.reviewEntries")}
                 </button>
                 <button
                   className="nb-btn"
                   onClick={() => navigate("/")}
                 >
-                  Bench
+                  {t("exam.bench")}
                 </button>
               </div>
             </div>
@@ -441,7 +497,7 @@ function WriteExam() {
 
         {view === "review" && result && (
           <div className="flex flex-col gap-3 mt-4">
-            <h2 className="font-display font-extrabold text-xl">Entry review</h2>
+            <h2 className="font-display font-extrabold text-xl">{t("exam.reviewTitle")}</h2>
             {questions.map((question, index) => {
               const selected = selectedOptions[index] || [];
               const correct = question.correctOptions || [
@@ -462,20 +518,26 @@ function WriteExam() {
                         isCorrect ? "nb-stamp-pass" : "nb-stamp-fail"
                       }`}
                     >
-                      {isCorrect ? "Logged" : "Missed"}
+                      {isCorrect ? t("exam.stampLogged") : t("exam.stampMissed")}
                     </span>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-display font-bold">
                         <span className="nb-data text-xs text-soft font-medium mr-2">
                           Q{index + 1}
                         </span>
-                        {question.name}
+                        {question.name}{" "}
+                        {(question.correctOptions?.length || 1) > 1 && (
+                          <span className="nb-data text-[11px] font-bold uppercase tracking-wider bg-accent text-white dark:text-[#06231a] px-2 py-0.5 rounded-md align-middle">
+                            {t("exam.multiBadge", { n: question.correctOptions.length })}
+                          </span>
+                        )}
                       </h3>
 
                       <div className="flex flex-col gap-2 mt-3">
                         {Object.keys(question.options).map((option) => {
                           const isSelected = selected.includes(option);
                           const isCorrectOption = correct.includes(option);
+                          const multi = (question.correctOptions?.length || 1) > 1;
 
                           let optionStyle = "option p-2.5 text-[15px] ";
                           if (isCorrectOption) {
@@ -485,19 +547,28 @@ function WriteExam() {
                           }
 
                           return (
-                            <div key={option} className={optionStyle}>
-                              <span className="nb-data text-sm font-bold text-soft mr-2">
+                            <div key={option} className={`${optionStyle} flex items-center gap-2`}>
+                              <span
+                                aria-hidden="true"
+                                className={`nb-data text-xs font-bold w-6 h-6 shrink-0 flex items-center justify-center border ${
+                                  multi ? "rounded" : "rounded-full"
+                                } ${
+                                  isSelected
+                                    ? "bg-accent border-accent text-white dark:text-[#06231a]"
+                                    : "border-rule text-soft"
+                                }`}
+                              >
                                 {option}
                               </span>
-                              {question.options[option]}
+                              <span>{question.options[option]}</span>
                               {isCorrectOption && (
                                 <span className="ml-2 text-xs font-semibold text-pass">
-                                  correct
+                                  {t("exam.correctTag")}
                                 </span>
                               )}
                               {isSelected && !isCorrectOption && (
                                 <span className="ml-2 text-xs font-semibold text-fail">
-                                  your pick
+                                  {t("exam.yourPick")}
                                 </span>
                               )}
                             </div>
@@ -510,7 +581,7 @@ function WriteExam() {
                           {question.explanation ? (
                             <div className="nb-specimen p-3">
                               <h4 className="font-display font-bold text-sm mb-1">
-                                Field note
+                                {t("exam.fieldNote")}
                               </h4>
                               <p className="text-sm">
                                 {question.explanation}
@@ -518,7 +589,7 @@ function WriteExam() {
                             </div>
                           ) : (
                             <p className="text-sm text-soft italic">
-                              No field note filed for this entry yet.
+                              {t("exam.noNote")}
                             </p>
                           )}
                         </div>
@@ -542,13 +613,13 @@ function WriteExam() {
                   setGamification(null);
                 }}
               >
-                Run again
+                {t("exam.runAgain")}
               </button>
               <button
                 className="nb-btn-ghost"
                 onClick={() => navigate("/")}
               >
-                Bench
+                {t("exam.bench")}
               </button>
             </div>
           </div>

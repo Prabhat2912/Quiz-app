@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Form, message, Checkbox, Switch, Radio } from "antd";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   addQuestionToExam,
   editQuestionInExam,
@@ -17,8 +18,10 @@ function AddEditQuestion(props) {
     selectedQuestion,
     setSelectedQuestion,
     examCategory,
+    examLanguage,
   } = props;
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [correctOptions, setCorrectOptions] = useState(
     selectedQuestion?.correctOptions || []
@@ -39,7 +42,9 @@ function AddEditQuestion(props) {
         correctOptions: correctOptions,
         explanation: values.explanation || "", // Add explanation field
         options: isTrueFalse
-          ? { A: "True", B: "False" }
+          ? examLanguage === "hi"
+            ? { A: "सही", B: "ग़लत" }
+            : { A: "True", B: "False" }
           : {
               A: values.A,
               B: values.B,
@@ -82,12 +87,12 @@ function AddEditQuestion(props) {
 
       // Validate that required fields are filled
       if (!values.name) {
-        message.warning("Please enter the question text first");
+        message.warning(t("question.needQuestionText"));
         return;
       }
 
       if (correctOptions.length === 0) {
-        message.warning("Please select the correct option(s) first");
+        message.warning(t("question.needCorrectOption"));
         return;
       }
 
@@ -106,38 +111,39 @@ function AddEditQuestion(props) {
           (opt) => opt && opt.trim()
         );
         if (!allOptionsFilled) {
-          message.warning("Please fill in all options first");
+          message.warning(t("question.needOptions"));
           return;
         }
       }
 
       setGeneratingExplanation(true);
-      message.info("Generating explanation with AI...");
+      message.info(t("question.generatingInfo"));
 
       const response = await generateExplanation({
         questionText: values.name,
         correctOptions: correctOptions,
         options: options,
         category: examCategory || "General",
+        language: examLanguage || "en",
       });
 
       setGeneratingExplanation(false);
 
       if (response.success) {
         form.setFieldsValue({ explanation: response.data.explanation });
-        message.success("AI explanation generated successfully!");
+        message.success(t("question.generatedOk"));
       } else {
-        message.error(response.message || "Failed to generate explanation");
+        message.error(response.message || t("question.generateFail"));
       }
     } catch (error) {
       setGeneratingExplanation(false);
-      message.error("Error generating explanation");
+      message.error(t("question.generateError"));
     }
   };
 
   return (
     <Modal
-      title={selectedQuestion ? "Edit Question" : "Add Question"}
+      title={selectedQuestion ? t("exams.editQuestion") : t("exams.addQuestion")}
       open={showAddEditQuestionModal}
       footer={false}
       onCancel={() => {
@@ -161,7 +167,7 @@ function AddEditQuestion(props) {
           correctOptions: selectedQuestion?.correctOptions || [],
         }}
       >
-        <Form.Item name="name" label="Question">
+        <Form.Item name="name" label={t("question.fieldText")}>
           <input type="text" />
         </Form.Item>
 
@@ -169,7 +175,7 @@ function AddEditQuestion(props) {
           name="explanation"
           label={
             <div className="flex items-center justify-between w-full">
-              <span>Explanation (Optional - shown for wrong answers)</span>
+              <span>{t("question.fieldExplanation")}</span>
               <button
                 type="button"
                 className="nb-btn py-1.5! px-3! text-sm! ml-2"
@@ -177,40 +183,40 @@ function AddEditQuestion(props) {
                 disabled={generatingExplanation}
               >
                 {generatingExplanation
-                  ? "Generating..."
-                  : "🤖 Generate with AI"}
+                  ? t("question.generating")
+                  : t("question.generateAI")}
               </button>
             </div>
           }
         >
           <textarea
             rows={3}
-            placeholder="Explain why the correct answer is right... or click 'Generate with AI'"
+            placeholder={t("question.explanationPh")}
           />
         </Form.Item>
 
-        <Form.Item label="Question Type">
+        <Form.Item label={t("question.fieldType")}>
           <Switch checked={isTrueFalse} onChange={setIsTrueFalse} />
           <span style={{ marginLeft: 8 }}>
-            {isTrueFalse ? "True/False" : "Multiple Choice"}
+            {isTrueFalse ? t("question.typeTrueFalse") : t("question.typeMultiple")}
           </span>
         </Form.Item>
 
         {isTrueFalse ? (
           <>
-            <Form.Item label="Correct Options">
+            <Form.Item label={t("question.correctOptions")}>
               <Radio.Group
                 onChange={handleCorrectOptionChange}
                 value={correctOptions[0]}
               >
-                <Radio value="A">True</Radio>
-                <Radio value="B">False</Radio>
+                <Radio value="A">{t("question.trueOption")}</Radio>
+                <Radio value="B">{t("question.falseOption")}</Radio>
               </Radio.Group>
             </Form.Item>
           </>
         ) : (
           <>
-            <Form.Item label="Correct Options">
+            <Form.Item label={t("question.correctOptions")}>
               <Checkbox.Group
                 options={["A", "B", "C", "D"]}
                 value={correctOptions}
@@ -218,18 +224,18 @@ function AddEditQuestion(props) {
               />
             </Form.Item>
             <div className="flex gap-2">
-              <Form.Item name="A" label="Option A">
+              <Form.Item name="A" label={t("question.option", { key: "A" })}>
                 <input type="text" />
               </Form.Item>
-              <Form.Item name="B" label="Option B">
+              <Form.Item name="B" label={t("question.option", { key: "B" })}>
                 <input type="text" />
               </Form.Item>
             </div>
             <div className="flex gap-2">
-              <Form.Item name="C" label="Option C">
+              <Form.Item name="C" label={t("question.option", { key: "C" })}>
                 <input type="text" />
               </Form.Item>
-              <Form.Item name="D" label="Option D">
+              <Form.Item name="D" label={t("question.option", { key: "D" })}>
                 <input type="text" />
               </Form.Item>
             </div>
@@ -241,7 +247,7 @@ function AddEditQuestion(props) {
             className="primary-contained-btn rounded-md cursor-pointer"
             type="submit"
           >
-            Save
+            {selectedQuestion ? t("question.updateQuestion") : t("question.saveQuestion")}
           </button>
           <button
             className="primary-outlined-btn"
@@ -251,7 +257,7 @@ function AddEditQuestion(props) {
               setSelectedQuestion();
             }}
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       </Form>

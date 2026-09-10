@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PageTitle from "../../../components/PageTitle";
 import { Table, message } from "antd";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { getAllAttempts } from "../../../apicalls/reports";
 import moment from "moment";
 
@@ -13,36 +15,46 @@ function AdminReportsPage() {
     userName: "",
   });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const columns = [
     {
-      title: "Exam Name",
+      title: t("reports.colExam"),
       dataIndex: "examName",
-      render: (text, record) => <>{record.exam.name}</>,
+      render: (text, record) => (
+        <button
+          className="hover:text-accent hover:underline text-left font-semibold"
+          onClick={() => navigate(`/user/reports/${record._id}`)}
+          title={t("reports.openReview")}
+        >
+          {record.exam?.name || t("reports.deletedExam")}
+        </button>
+      ),
     },
     {
-      title: "Date",
+      title: t("reports.colDate"),
       dataIndex: "date",
       render: (text, record) => (
         <>{moment(record.createdAt).format("DD-MM-YYYY hh:mm:ss")}</>
       ),
     },
     {
-      title: "User",
+      title: t("reports.colUser"),
       dataIndex: "user",
-      render: (text, record) => <>{record.user.name}</>,
+      render: (text, record) => <>{record.user?.name}</>,
     },
     {
-      title: "Total Marks",
+      title: t("reports.colTotal"),
       dataIndex: "totalMarks",
-      render: (text, record) => <>{record.exam.totalMarks}</>,
+      render: (text, record) => <>{record.exam?.totalMarks}</>,
     },
     {
-      title: "Passing Marks",
+      title: t("reports.colPassing"),
       dataIndex: "passingMarks",
-      render: (text, record) => <>{record.exam.passingMarks}</>,
+      render: (text, record) => <>{record.exam?.passingMarks}</>,
     },
     {
-      title: "Obtained Marks",
+      title: t("reports.colObtained"),
       dataIndex: "obtainedMarks",
       render: (text, record) => (
         <>
@@ -54,9 +66,15 @@ function AdminReportsPage() {
       ),
     },
     {
-      title: "Verdict",
+      title: t("reports.colVerdict"),
       dataIndex: "verdict",
-      render: (text, record) => <>{record.result.verdict}</>,
+      render: (text, record) => (
+        <>
+          {record.result.verdict === "Pass"
+            ? t("exam.verdictPass")
+            : t("exam.verdictFail")}
+        </>
+      ),
     },
   ];
   const getData = async (tempFilters) => {
@@ -81,19 +99,19 @@ function AdminReportsPage() {
   }, []);
   return (
     <div>
-      <PageTitle title="Reports" />
+      <PageTitle title={t("reports.title")} />
       <div className="divider"></div>
       <div className="flex flex-wrap gap-2 mt-2">
         <input
           type="text"
-          placeholder="Exam"
+          placeholder={t("reports.filterExam")}
           className="min-w-[90px] flex-1 sm:flex-none sm:w-40"
           value={filters.examName}
           onChange={(e) => setFilters({ ...filters, examName: e.target.value })}
         />
         <input
           type="text"
-          placeholder="User"
+          placeholder={t("reports.filterUser")}
           className="min-w-[90px] flex-1 sm:flex-none sm:w-40"
           value={filters.userName}
           onChange={(e) => setFilters({ ...filters, userName: e.target.value })}
@@ -111,21 +129,22 @@ function AdminReportsPage() {
             });
           }}
         >
-          Clear
+          {t("reports.clear")}
         </button>
         <button
           className="primary-contained-btn rounded-md cursor-pointer"
           onClick={() => getData(filters)}
         >
-          Search
+          {t("reports.search")}
         </button>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto mt-2">
         <Table
           columns={columns}
-          className="mt-2  min-w-[620px]  "
+          className="min-w-[620px]  "
           dataSource={reportsData}
-          locale={{ emptyText: "No reports available 😔" }}
+          rowKey="_id"
+          locale={{ emptyText: t("reports.empty") }}
         />
       </div>
     </div>

@@ -3,46 +3,51 @@ import { useNavigate } from "react-router-dom";
 import PageTitle from "../../../components/PageTitle";
 import { Table, message } from "antd";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { getAllExams, deleteExam } from "../../../apicalls/exams";
 
 function ExamsPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const [exams, setExams] = useState([]);
   const columns = [
     {
-      title: "Exam Name",
+      title: t("exams.colName"),
       dataIndex: "name",
     },
     {
-      title: "Duration",
+      title: t("exams.colDuration"),
       dataIndex: "duration",
+      render: (text, record) => <>{Math.round((record.duration || 0) / 60)}</>,
     },
     {
-      title: "Category",
+      title: t("exams.colCategory"),
       dataIndex: "category",
     },
     {
-      title: "Total Marks",
+      title: t("exams.colTotal"),
       dataIndex: "totalMarks",
     },
     {
-      title: "Passing Marks",
+      title: t("exams.colPassing"),
       dataIndex: "passingMarks",
     },
     {
-      title: "Action",
+      title: t("exams.colAction"),
       dataIndex: "action",
       render: (text, record) => {
         return (
           <div className="flex gap-2">
             <i
               className="ri-pencil-line cursor-pointer"
+              title={t("exams.editExam")}
               onClick={() => navigate(`/admin/exams/edit/${record._id}`)}
             ></i>
             <i
               className="ri-delete-bin-line cursor-pointer"
+              title={t("exams.deleteExam")}
               onClick={() => {
                 deleteExamById(record._id);
               }}
@@ -90,13 +95,13 @@ function ExamsPage() {
   return (
     <>
       <div className="flex justify-between mt-1">
-        <PageTitle title="Exams" />
+        <PageTitle title={t("exams.title")} />
         <button
           className="primary-outlined-btn flex items-center cursor-pointer"
           onClick={() => navigate("/admin/exams/add")}
         >
           <i className="ri-add-line"></i>
-          Add Exam
+          {t("exams.add")}
         </button>
       </div>
       <div className="divider mt-1"></div>
@@ -105,7 +110,7 @@ function ExamsPage() {
           className="min-w-[520px]"
           columns={columns}
           dataSource={exams}
-          locale={{ emptyText: "No exams available 😔" }}
+          locale={{ emptyText: t("exams.empty") }}
         />
       </div>
     </>

@@ -1,56 +1,39 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Instructions(props) {
   const { examData, setView, startTimer } = props
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const rules = t("exam.instructions", {
+    duration: Math.max(1, Math.round((examData.duration || 0) / 60)),
+    totalMarks: examData.totalMarks,
+    passingMarks: examData.passingMarks,
+    returnObjects: true,
+  });
   return (
     <div className='flex flex-col items-center mt-2 gap-5 max-w-2xl mx-auto w-full'>
-      <h1 className='text-2xl underline text-center'>
-        Instructions
-      </h1>
-      <ul className='flex flex-col gap-1'>
-        <li>
-          Exam must be completed in {examData.duration} minutes.
-        </li>
-        <li>
-          Exam will be submitted automatically after {examData.duration} minutes.
-        </li>
-        <li>
-          Once submitted, you cannot change your answer.
-        </li>
-        <li>
-          Do not refresh the page and do not navigate to other pages like Home, Profile. If did so, you've to restart your exam.
-        </li>
-        <li>
-          You can use the <span className='font-bold'>Previous</span> and <span className='font-bold'>
-            Next
-          </span> buttons to navigate between questions.
-        </li>
-        <li>
-          Total marks of the exam is <span className='font-bold'>
-            {examData.totalMarks}
-          </span>
-        </li>
-        <li>
-          Passing marks of the exam is <span className='font-bold'>
-            {examData.passingMarks}
-          </span>
-        </li>
-
-      </ul>
-      <div className='flex gap-2'>
-        <button className='primary-outlined-btn rounded-md cursor-pointer'
+      <h2 className='font-display font-extrabold text-xl text-center'>
+        {t("exam.instructionsTitle")}
+      </h2>
+      <ol className="nb-sheet p-6 list-decimal list-inside flex flex-col gap-2 text-[15px] w-full">
+        {rules.map((rule, i) => (
+          <li key={i}>{rule}</li>
+        ))}
+      </ol>
+      <div className='flex flex-wrap justify-center gap-2'>
+        <button className='nb-btn-ghost'
           onClick={() => navigate(-1)}
         >
-          Close
+          {t("common.back")}
         </button>
-        <button className='primary-contained-btn rounded-md cursor-pointer'
+        <button className='nb-btn'
           onClick={() => {
             startTimer();
             setView("questions")
           }}
-        >Start Exam</button>
+        >{t("exam.startExam")}</button>
       </div>
     </div>
   )

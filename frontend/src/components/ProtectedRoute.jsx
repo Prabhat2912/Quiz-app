@@ -2,11 +2,13 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { getUserInfo } from "../apicalls/users";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { SetUser } from "../redux/usersSlice";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
 import ThemeBtn from "./ThemeBtn";
+import LangSwitch from "./LangSwitch";
 import LevelProgressCard from "./gamification/LevelProgressCard";
 import "remixicon/fonts/remixicon.css";
 
@@ -15,36 +17,37 @@ function ProtectedRoute({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.users.user);
+  const { t } = useTranslation();
   const [menu, setMenu] = useState([]);
   const [collapsed, setCollapsed] = useState(true);
   const userMenu = useMemo(
     () => [
       {
-        title: "Home",
+        title: t("nav.home"),
         paths: ["/", "/user/write-exam/:id"],
         icon: <i className="ri-home-line"></i>,
         onClick: () => navigate("/"),
       },
       {
-        title: "Logbook",
+        title: t("nav.logbook"),
         paths: ["/user/progress"],
         icon: <i className="ri-book-open-line"></i>,
         onClick: () => navigate("/user/progress"),
       },
       {
-        title: "Reports",
+        title: t("nav.reports"),
         paths: ["/user/reports"],
         icon: <i className="ri-bar-chart-line"></i>,
         onClick: () => navigate("/user/reports"),
       },
       {
-        title: "Leaderboard",
+        title: t("nav.leaderboard"),
         paths: ["/leaderboard"],
         icon: <i className="ri-trophy-line"></i>,
         onClick: () => navigate("/leaderboard"),
       },
       {
-        title: "Logout",
+        title: t("nav.logout"),
         paths: ["/logout"],
         icon: <i className="ri-logout-box-line"></i>,
         onClick: () => {
@@ -53,43 +56,43 @@ function ProtectedRoute({ children }) {
         },
       },
     ],
-    [navigate]
+    [navigate, t]
   );
 
   const adminMenu = useMemo(
     () => [
       {
-        title: "Home",
+        title: t("nav.home"),
         paths: ["/", "/user/write-exam/:id"],
         icon: <i className="ri-home-line"></i>,
         onClick: () => navigate("/"),
       },
       {
-        title: "Exams",
+        title: t("nav.exams"),
         paths: ["/admin/exams", "/admin/exams/add", "/admin/exams/edit/:id"],
         icon: <i className="ri-file-list-line"></i>,
         onClick: () => navigate("/admin/exams"),
       },
       {
-        title: "Reports",
+        title: t("nav.reports"),
         paths: ["/admin/reports"],
         icon: <i className="ri-bar-chart-line"></i>,
         onClick: () => navigate("/admin/reports"),
       },
       {
-        title: "Logbook",
+        title: t("nav.logbook"),
         paths: ["/user/progress"],
         icon: <i className="ri-book-open-line"></i>,
         onClick: () => navigate("/user/progress"),
       },
       {
-        title: "Leaderboard",
+        title: t("nav.leaderboard"),
         paths: ["/leaderboard"],
         icon: <i className="ri-trophy-line"></i>,
         onClick: () => navigate("/leaderboard"),
       },
       {
-        title: "Logout",
+        title: t("nav.logout"),
         paths: ["/logout"],
         icon: <i className="ri-logout-box-line"></i>,
         onClick: () => {
@@ -98,7 +101,7 @@ function ProtectedRoute({ children }) {
         },
       },
     ],
-    [navigate]
+    [navigate, t]
   );
   const getUserData = useCallback(async () => {
     try {
@@ -115,7 +118,7 @@ function ProtectedRoute({ children }) {
         }
       } else {
         if (response.message === "jwt expired") {
-          message.error("Session expired. Please log in again.");
+          message.error(t("common.sessionExpired"));
           localStorage.removeItem("token");
           navigate("/login");
         } else {
@@ -123,7 +126,7 @@ function ProtectedRoute({ children }) {
         }
       }
     } catch (error) {
-      message.error("An error occurred. Redirecting to login.");
+      message.error(t("common.authError"));
       localStorage.removeItem("token");
       navigate("/login");
     }
@@ -164,7 +167,7 @@ function ProtectedRoute({ children }) {
       <div className="h-screen overflow-hidden bg-paper text-ink">
         <div className="flex h-full">
           <nav
-            aria-label="Primary"
+            aria-label={t("nav.primary")}
             className={`${
               collapsed ? "w-[76px]" : "w-60"
             } mt-14 shrink-0 z-10 overflow-hidden transition-all duration-200 ease-linear p-3 h-[calc(100vh-56px)] flex flex-col items-stretch bg-sheet border-r border-rule`}
@@ -172,7 +175,7 @@ function ProtectedRoute({ children }) {
             <button
               className="cursor-pointer flex items-center text-soft hover:text-accent self-end p-1"
               onClick={() => setCollapsed((c) => !c)}
-              aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+              aria-label={collapsed ? t("nav.expand") : t("nav.collapse")}
               aria-expanded={!collapsed}
             >
               <i
@@ -228,14 +231,14 @@ function ProtectedRoute({ children }) {
               <button
                 className="flex items-baseline gap-2 cursor-pointer"
                 onClick={() => navigate("/")}
-                aria-label="Quiz App home"
+                aria-label={t("common.appName")}
               >
                 <span className="font-display font-extrabold text-lg tracking-tight">
-                  Quiz App
+                  {t("common.appName")}
                 </span>
                 <span className="nb-data hidden sm:inline text-xs text-soft">
-                  lab notebook ·{" "}
-                  {user?.isAdmin ? "author bench" : "experiment log"}
+                  {t("landing.tagline")} ·{" "}
+                  {user?.isAdmin ? t("nav.taglineAuthor") : t("nav.taglineLearner")}
                 </span>
               </button>
 
@@ -244,15 +247,15 @@ function ProtectedRoute({ children }) {
                   (user.level !== undefined || user.xp !== undefined) && (
                     <div className="hidden md:flex items-center gap-2">
                       <span className="nb-data text-sm font-semibold">
-                        Lv {user.level || 1}
+                        {t("common.levelShort", { n: user.level || 1 })}
                       </span>
                       <span className="nb-data text-xs text-soft">
-                        {(user.xp || 0).toLocaleString()} XP
+                        {t("common.xp", { n: (user.xp || 0).toLocaleString() })}
                       </span>
                       {user.badges && user.badges.length > 0 && (
                         <span
                           className="nb-data text-xs font-semibold text-accent"
-                          title="Badges earned"
+                          title={t("profile.cabinet")}
                         >
                           ⬢ {user.badges.length}
                         </span>
@@ -262,7 +265,7 @@ function ProtectedRoute({ children }) {
                 <button
                   className="flex items-center gap-2 cursor-pointer"
                   onClick={() => navigate("/profile")}
-                  aria-label="Open profile"
+                  aria-label={t("nav.openProfile")}
                 >
                   <span
                     className="w-8 h-8 rounded-full bg-accent text-white dark:text-[#06231a] flex items-center justify-center font-display font-bold text-sm"
@@ -275,10 +278,11 @@ function ProtectedRoute({ children }) {
                       {user?.name}
                     </span>
                     <span className="block text-xs text-soft">
-                      {user?.isAdmin ? "Admin" : "Learner"}
+                      {user?.isAdmin ? t("nav.roleAdmin") : t("nav.roleLearner")}
                     </span>
                   </span>
                 </button>
+                <LangSwitch compact />
                 <ThemeBtn />
               </div>
             </header>

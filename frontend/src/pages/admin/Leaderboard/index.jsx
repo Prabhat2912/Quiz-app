@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { message, Table } from "antd";
 import { getLeaderboard, getAllReports } from "../../../apicalls/reports";
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
@@ -12,6 +13,7 @@ function Leaderboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.users);
+  const { t } = useTranslation();
 
   // Fallback for backends that predate GET /api/reports/leaderboard
   // (e.g. a deployment made before the gamification APIs shipped):
@@ -94,14 +96,14 @@ function Leaderboard() {
 
   const columns = [
     {
-      title: "Rank",
+      title: t("leaderboard.colRank"),
       dataIndex: "rank",
       key: "rank",
       render: (rank) =>
         rank === 1 ? "🥇 1" : rank === 2 ? "🥈 2" : rank === 3 ? "🥉 3" : rank,
     },
     {
-      title: "Name",
+      title: t("leaderboard.colName"),
       dataIndex: "name",
       key: "name",
       render: (name, record) =>
@@ -111,32 +113,40 @@ function Leaderboard() {
               record.isCurrentUser ? "font-bold text-accent" : ""
             }`}
             onClick={() => navigate(`/admin/users/${record.userId}`)}
-            title={`Open ${name}'s profile and logbook`}
+            title={t("leaderboard.openLogbook", { name })}
           >
-            {name} {record.isCurrentUser ? "(you)" : ""}
+            {name} {record.isCurrentUser ? t("leaderboard.you") : ""}
           </button>
         ) : (
           <span className={record.isCurrentUser ? "font-bold text-accent" : ""}>
-            {name} {record.isCurrentUser ? "(you)" : ""}
+            {name} {record.isCurrentUser ? t("leaderboard.you") : ""}
           </span>
         ),
     },
     {
-      title: "Level",
+      title: t("leaderboard.colLevel"),
       dataIndex: "level",
       key: "level",
       sorter: (a, b) => a.level - b.level,
-      render: (level) => <span className="nb-chip nb-data">Lv {level}</span>,
+      render: (level) => (
+        <span className="nb-chip nb-data">
+          {t("common.levelShort", { n: level })}
+        </span>
+      ),
     },
     {
-      title: "XP",
+      title: t("leaderboard.colXp"),
       dataIndex: "xp",
       key: "xp",
       sorter: (a, b) => a.xp - b.xp,
-      render: (xp) => <span className="nb-data font-bold text-accent">{xp} XP</span>,
+      render: (xp) => (
+        <span className="nb-data font-bold text-accent">
+          {t("common.xp", { n: xp })}
+        </span>
+      ),
     },
     {
-      title: "Badges",
+      title: t("leaderboard.colBadges"),
       dataIndex: "badgesCount",
       key: "badgesCount",
       sorter: (a, b) => a.badgesCount - b.badgesCount,
@@ -147,19 +157,19 @@ function Leaderboard() {
       ),
     },
     {
-      title: "Quizzes",
+      title: t("leaderboard.colQuizzes"),
       dataIndex: "totalQuizzes",
       key: "totalQuizzes",
       sorter: (a, b) => a.totalQuizzes - b.totalQuizzes,
     },
     {
-      title: "Accuracy",
+      title: t("leaderboard.colAccuracy"),
       dataIndex: "accuracy",
       key: "accuracy",
       render: (acc) => `${acc}%`,
     },
     {
-      title: "Streak",
+      title: t("leaderboard.colStreak"),
       dataIndex: "currentStreak",
       key: "currentStreak",
       render: (s) => (s > 0 ? `🔥 ${s}` : "—"),
@@ -168,11 +178,15 @@ function Leaderboard() {
 
   return (
     <div>
-      <PageTitle title="Standings" sub="Ranked by total XP across all runs." />
+      <PageTitle title={t("leaderboard.title")} sub={t("leaderboard.sub")} />
       {myRank && (
         <div className="nb-specimen mb-3 p-3 text-sm">
-          {user?.name}, you hold <b className="nb-data">#{myRank}</b> with{" "}
-          <b className="nb-data">{user?.xp || 0} XP</b> (Level {user?.level || 1}).
+          {t("leaderboard.youHold", {
+            name: user?.name,
+            rank: myRank,
+            xp: user?.xp || 0,
+            level: user?.level || 1,
+          })}
         </div>
       )}
       <div className="overflow-x-auto">
@@ -185,7 +199,7 @@ function Leaderboard() {
             record.isCurrentUser ? "nb-tint-accent font-semibold" : ""
           }
           pagination={{ pageSize: 20 }}
-          locale={{ emptyText: "No leaderboard data available 😔" }}
+          locale={{ emptyText: t("leaderboard.empty") }}
         />
       </div>
     </div>

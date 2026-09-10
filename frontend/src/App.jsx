@@ -6,12 +6,19 @@ import "./stylesheets/theme.css";
 import "./stylesheets/custom-components.css";
 import "./stylesheets/form-elements.css";
 import "./stylesheets/layout.css";
+import "./i18n";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ConfigProvider } from "antd";
+import enUS from "antd/locale/en_US";
+import hiIN from "antd/locale/hi_IN";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AuthPage from "./pages/common/Auth";
 import HomePage from "./pages/common/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import ReportsPage from "./pages/user/Reports";
+import ReviewAttemptPage from "./pages/user/ReviewAttempt";
 import ProfilePage from "./pages/user/Profile";
 import ProgressPage from "./pages/user/Progress";
 import ExamsPage from "./pages/admin/Exams";
@@ -30,11 +37,24 @@ const hasToken = () => !!localStorage.getItem("token");
 
 function App() {
   const { loading } = useSelector((state) => state.loaders);
+  const { i18n } = useTranslation();
+  const [lang, setLang] = useState(i18n.language || "en");
+
+  useEffect(() => {
+    const handler = (lng) => {
+      setLang(lng);
+      document.documentElement.lang = lng;
+    };
+    i18n.on("languageChanged", handler);
+    return () => i18n.off("languageChanged", handler);
+  }, [i18n]);
+
   return (
-    <>
-      {loading && <Loader />}
-      <InstallPWA />
-      <Router>
+    <ConfigProvider locale={lang === "hi" ? hiIN : enUS}>
+      <>
+        {loading && <Loader />}
+        <InstallPWA />
+        <Router>
         <Routes>
           <Route
             path="/login"
@@ -97,6 +117,14 @@ function App() {
             }
           />
           <Route
+            path="/user/reports/:reportId"
+            element={
+              <ProtectedRoute>
+                <ReviewAttemptPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/user/progress"
             element={
               <ProtectedRoute>
@@ -147,7 +175,8 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
-    </>
+      </>
+    </ConfigProvider>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { getUserProgress } from "../../../apicalls/reports";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { message } from "antd";
@@ -7,10 +8,12 @@ import PageTitle from "../../../components/PageTitle";
 import LevelProgressCard from "../../../components/gamification/LevelProgressCard";
 import BadgeCard from "../../../components/gamification/BadgeCard";
 import { LEVEL_BADGES } from "../../../utils/gamification";
+import { translateBadge } from "../../../i18n";
 
 function Progress() {
   const [progressData, setProgressData] = useState(null);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchProgressData = async () => {
@@ -25,17 +28,17 @@ function Progress() {
         }
       } catch (error) {
         dispatch(HideLoading());
-        message.error("Failed to load progress data");
+        message.error(t("progress.loadFail"));
       }
     };
 
     fetchProgressData();
-  }, [dispatch]);
+  }, [dispatch, t]);
 
   if (!progressData) {
     return (
       <div className="flex justify-center items-center h-screen">
-        Loading...
+        {t("common.loading")}
       </div>
     );
   }
@@ -56,88 +59,97 @@ function Progress() {
       (b) => !LEVEL_BADGES.some((lb) => lb.name === b.name)
     );
   const nextBadgeMilestone = progressData.nextBadge || null;
+  const nextName = nextBadgeMilestone
+    ? translateBadge(t, { name: nextBadgeMilestone.name }).name
+    : null;
   const xpHistory = progressData.xpHistory || [];
   const maxXp = Math.max(1, ...xpHistory.map((h) => h.xp));
 
   return (
     <div>
       <PageTitle
-        title="Logbook"
-        sub="Every run recorded — levels, specimens, streaks, and per-subject readings."
+        title={t("progress.title")}
+        sub={t("progress.sub")}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         <LevelProgressCard xp={user.xp} level={user.level} />
 
-        <section aria-label="Totals" className="nb-sheet p-6">
-          <h2 className="font-display font-bold">Runs filed</h2>
+        <section aria-label={t("progress.runsFiled")} className="nb-sheet p-6">
+          <h2 className="font-display font-bold">{t("progress.runsFiled")}</h2>
           <p className="nb-data text-4xl font-bold mt-1">
             {stats.totalQuizzesCompleted}
           </p>
           <dl className="nb-data text-xs text-soft mt-2 space-y-1">
             <div className="flex justify-between">
-              <dt>questions</dt>
+              <dt>{t("progress.questions")}</dt>
               <dd className="text-ink font-bold">{stats.totalQuestionsAttempted}</dd>
             </div>
             <div className="flex justify-between">
-              <dt>perfect runs</dt>
+              <dt>{t("progress.perfectRuns")}</dt>
               <dd className="text-ink font-bold">{stats.perfectScores || 0}</dd>
             </div>
             <div className="flex justify-between">
-              <dt>passed</dt>
+              <dt>{t("progress.passed")}</dt>
               <dd className="text-ink font-bold">{stats.passedQuizzes || 0}</dd>
             </div>
           </dl>
         </section>
 
-        <section aria-label="Accuracy" className="nb-sheet p-6">
-          <h2 className="font-display font-bold">Accuracy</h2>
+        <section aria-label={t("progress.accuracy")} className="nb-sheet p-6">
+          <h2 className="font-display font-bold">{t("progress.accuracy")}</h2>
           <p className="nb-data text-4xl font-bold mt-1">
             {Number(stats.accuracy || 0).toFixed(1)}
             <span className="text-base font-medium text-soft">%</span>
           </p>
           <p className="nb-data text-xs text-soft mt-2">
-            {stats.totalCorrectAnswers} correct answers entered
+            {t("progress.correctEntered", { n: stats.totalCorrectAnswers })}
           </p>
         </section>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <section aria-label="Current streak" className="nb-sheet p-6">
-          <h2 className="font-display font-bold">Current streak</h2>
+        <section aria-label={t("progress.streakNow")} className="nb-sheet p-6">
+          <h2 className="font-display font-bold">{t("progress.streakNow")}</h2>
           <p className="nb-data text-4xl font-bold mt-1">
             {user.stats?.currentStreak || 0}
-            <span className="text-base font-medium text-soft"> days</span>
+            <span className="text-base font-medium text-soft"> {t("progress.daysUnit")}</span>
           </p>
-          <p className="text-sm text-soft mt-1">One run a day keeps it alive.</p>
+          <p className="text-sm text-soft mt-1">{t("progress.streakHint")}</p>
         </section>
 
-        <section aria-label="Longest streak" className="nb-sheet p-6">
-          <h2 className="font-display font-bold">Longest streak</h2>
+        <section aria-label={t("progress.streakBest")} className="nb-sheet p-6">
+          <h2 className="font-display font-bold">{t("progress.streakBest")}</h2>
           <p className="nb-data text-4xl font-bold mt-1">
             {user.stats?.longestStreak || 0}
-            <span className="text-base font-medium text-soft"> days</span>
+            <span className="text-base font-medium text-soft"> {t("progress.daysUnit")}</span>
           </p>
-          <p className="text-sm text-soft mt-1">Personal best on record.</p>
+          <p className="text-sm text-soft mt-1">{t("progress.streakBestHint")}</p>
         </section>
       </div>
 
       {/* Specimen cabinet — always visible so learners see what to unlock */}
-      <section aria-label="Badges" className="nb-sheet mt-4 p-6">
-        <h2 className="font-display font-extrabold text-lg">Specimen cabinet</h2>
+      <section aria-label={t("progress.cabinet")} className="nb-sheet mt-4 p-6">
+        <h2 className="font-display font-extrabold text-lg">{t("progress.cabinet")}</h2>
         <p className="nb-data text-xs text-soft mt-1 mb-4">
-          {(user.badges || []).length} affixed
           {progressData.badgeCatalog
-            ? ` of ${progressData.badgeCatalog.length}`
-            : ""}
-          {nextBadgeMilestone
-            ? ` · next: ${nextBadgeMilestone.icon} ${nextBadgeMilestone.name} (Lv ${nextBadgeMilestone.level})`
-            : " · cabinet complete"}
+            ? t("progress.affixedOf", {
+                a: (user.badges || []).length,
+                b: progressData.badgeCatalog.length,
+              })
+            : t("progress.affixed", { n: (user.badges || []).length })}
+          {nextBadgeMilestone && nextName
+            ? ` · ${t("progress.nextBadge", {
+                icon: nextBadgeMilestone.icon,
+                name: nextName,
+                level: nextBadgeMilestone.level,
+              })}`
+            : ` · ${t("progress.cabinetDone")}`}
         </p>
 
         <div className="mb-6">
           <h3 className="font-display font-bold text-sm mb-3">
-            Level milestones
+            {t("progress.levelMilestones")}
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {levelBadges.map((milestone) => {
@@ -165,7 +177,7 @@ function Progress() {
 
         <div>
           <h3 className="font-display font-bold text-sm mb-3">
-            Field achievements
+            {t("progress.fieldAchievements")}
           </h3>
           {achievementBadges.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -179,8 +191,7 @@ function Progress() {
             </div>
           ) : (
             <p className="text-sm text-soft">
-              Nothing affixed yet — score 80%+ or hold a streak to earn the
-              first label.
+              {t("progress.noAchievements")}
             </p>
           )}
         </div>
@@ -188,9 +199,9 @@ function Progress() {
 
       {/* XP ledger */}
       {xpHistory.length > 0 && (
-        <section aria-label="XP history" className="nb-sheet mt-4 p-6">
-          <h2 className="font-display font-extrabold text-lg">XP ledger</h2>
-          <div className="flex items-end gap-2 h-32 mt-4" role="img" aria-label="XP earned per recent quiz">
+        <section aria-label={t("progress.xpLedger")} className="nb-sheet mt-4 p-6">
+          <h2 className="font-display font-extrabold text-lg">{t("progress.xpLedger")}</h2>
+          <div className="flex items-end gap-2 h-32 mt-4" role="img" aria-label={t("progress.xpLedgerHint")}>
             {xpHistory.slice(-12).map((h, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
                 <div
@@ -208,8 +219,8 @@ function Progress() {
       )}
 
       {/* Recent runs */}
-      <section aria-label="Recent runs" className="nb-sheet mt-4 p-6">
-        <h2 className="font-display font-extrabold text-lg">Recent runs</h2>
+      <section aria-label={t("progress.recentRuns")} className="nb-sheet mt-4 p-6">
+        <h2 className="font-display font-extrabold text-lg">{t("progress.recentRuns")}</h2>
         {recentScores.length > 0 ? (
           <ol className="mt-2">
             {recentScores.map((score, index) => (
@@ -235,7 +246,9 @@ function Progress() {
                         : "nb-stamp-fail"
                     }`}
                   >
-                    {score.verdict}
+                    {score.verdict === "Pass"
+                      ? t("exam.verdictPass")
+                      : t("exam.verdictFail")}
                   </span>
                 </div>
               </li>
@@ -243,14 +256,14 @@ function Progress() {
           </ol>
         ) : (
           <p className="text-sm text-soft mt-2">
-            No runs on record yet. File the first one from the bench.
+            {t("progress.noRuns")}
           </p>
         )}
       </section>
 
       {/* Subject readings */}
-      <section aria-label="Category performance" className="nb-sheet mt-4 p-6">
-        <h2 className="font-display font-extrabold text-lg">Subject readings</h2>
+      <section aria-label={t("progress.subjects")} className="nb-sheet mt-4 p-6">
+        <h2 className="font-display font-extrabold text-lg">{t("progress.subjects")}</h2>
         {categoryPerformance && Object.keys(categoryPerformance).length > 0 ? (
           <div className="space-y-4 mt-2">
             {Object.entries(categoryPerformance).map(([category, data]) => (
@@ -258,11 +271,11 @@ function Progress() {
                 <div className="flex justify-between items-baseline">
                   <h3 className="font-display font-bold">{category}</h3>
                   <span className="nb-data text-xs text-soft">
-                    {data.attempted} run{data.attempted !== 1 ? "s" : ""} ·{" "}
+                    {t("common.run_other", { count: data.attempted })} ·{" "}
                     {Number(data.averageScore || 0).toFixed(0)}%
                   </span>
                 </div>
-                <div className="nb-meter h-2.5" role="progressbar" aria-valuenow={Math.round(Number(data.averageScore) || 0)} aria-valuemin="0" aria-valuemax="100" aria-label={`${category} average score`}>
+                <div className="nb-meter h-2.5" role="progressbar" aria-valuenow={Math.round(Number(data.averageScore) || 0)} aria-valuemin="0" aria-valuemax="100" aria-label={t("progress.subjectAria", { category })}>
                   <div
                     style={{ "--fill": (Number(data.averageScore) || 0) / 100 }}
                   />
@@ -272,14 +285,14 @@ function Progress() {
           </div>
         ) : (
           <p className="text-sm text-soft mt-2">
-            No subject data yet. Run a quiz first.
+            {t("progress.noSubjects")}
           </p>
         )}
       </section>
 
       {levelProgress && (
         <details className="mt-4 text-xs text-soft">
-          <summary className="cursor-pointer">Level details</summary>
+          <summary className="cursor-pointer">{t("progress.levelDetails")}</summary>
           <pre className="nb-data mt-1 p-3 nb-sheet overflow-auto">
             {JSON.stringify(levelProgress, null, 2)}
           </pre>

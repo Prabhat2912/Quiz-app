@@ -4,6 +4,7 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginUser, registerUser } from "../../../apicalls/users";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
+import { useTranslation } from "react-i18next";
 import VerifyEmailOtp from "../../../components/VerifyEmailOtp";
 import ForgotPassword from "../../../components/ForgotPassword";
 
@@ -16,6 +17,7 @@ function AuthPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const mode = location.pathname.startsWith("/register") ? "register" : "login";
   const go = (next) => navigate(next === "register" ? "/register" : "/login");
   // Left panel sub-views: plain login | forgot-password flow | email OTP check.
@@ -49,7 +51,7 @@ function AuthPage() {
 
   const onRegister = async (values) => {
     if (values.password !== values.confirmPassword) {
-      return message.error("Passwords do not match");
+      return message.error(t("auth.passwordMismatch"));
     }
     try {
       dispatch(ShowLoading());
@@ -77,13 +79,13 @@ function AuthPage() {
         className="nb-btn-ghost py-2! px-3! text-sm absolute top-4 left-4 z-10"
       >
         <i className="ri-home-line mr-1" aria-hidden="true"></i>
-        Home
+        {t("auth.home")}
       </Link>
       <div className="nb-sheet w-full max-w-4xl m-auto overflow-hidden">
         <div className="grid md:grid-cols-2 relative items-stretch">
           {/* Left — login / recovery / verification */}
           <section
-            aria-label="Login"
+            aria-label={t("auth.loginBtn")}
             aria-hidden={mode !== "login"}
             inert={mode !== "login" ? true : undefined}
             className={`p-6 sm:p-10 flex flex-col justify-center ${
@@ -110,30 +112,30 @@ function AuthPage() {
               />
             ) : (
             <>
-            <p className="nb-data text-xs text-soft">field log · entry 01</p>
+            <p className="nb-data text-xs text-soft">{t("auth.loginEntry")}</p>
             <h2 className="font-display font-extrabold text-2xl mt-1">
-              Welcome back
+              {t("auth.welcomeBack")}
             </h2>
             <p className="text-sm text-soft mt-1">
-              Sign the logbook to resume experimenting.
+              {t("auth.loginSub")}
             </p>
             <Form layout="vertical" className="mt-4" onFinish={onLogin}>
               <Form.Item
                 name="email"
-                label="Email"
-                rules={[{ required: true, message: "Enter your email" }]}
+                label={t("auth.email")}
+                rules={[{ required: true, message: t("auth.needEmail") }]}
               >
                 <input type="email" placeholder="you@lab.example" autoComplete="email" />
               </Form.Item>
               <Form.Item
                 name="password"
-                label="Password"
-                rules={[{ required: true, message: "Enter your password" }]}
+                label={t("auth.password")}
+                rules={[{ required: true, message: t("auth.needPassword") }]}
               >
                 <input type="password" placeholder="••••••••" autoComplete="current-password" />
               </Form.Item>
               <button type="submit" className="nb-btn w-full mt-2">
-                Login
+                {t("auth.loginBtn")}
               </button>
             </Form>
             <button
@@ -141,16 +143,16 @@ function AuthPage() {
               onClick={() => setLeftView({ name: "forgot" })}
               className="text-sm text-accent font-semibold hover:underline mt-3"
             >
-              Forgot password?
+              {t("auth.forgot")}
             </button>
             <p className="text-sm mt-4 text-center md:hidden">
-              <span className="text-soft">New to the bench? </span>
+              <span className="text-soft">{t("auth.toRegister")} </span>
               <button
                 type="button"
                 onClick={() => go("register")}
                 className="text-accent font-semibold hover:underline"
               >
-                Register here
+                {t("auth.toRegisterLink")}
               </button>
             </p>
             </>
@@ -159,7 +161,7 @@ function AuthPage() {
 
           {/* Right — register / verification */}
           <section
-            aria-label="Register"
+            aria-label={t("auth.registerBtn")}
             aria-hidden={mode !== "register"}
             inert={mode !== "register" ? true : undefined}
             className={`p-6 sm:p-10 flex flex-col justify-center ${
@@ -182,12 +184,12 @@ function AuthPage() {
               />
             ) : (
             <>
-            <p className="nb-data text-xs text-soft">field log · entry 00</p>
+            <p className="nb-data text-xs text-soft">{t("auth.registerEntry")}</p>
             <h2 className="font-display font-extrabold text-2xl mt-1">
-              Open a page
+              {t("auth.openPage")}
             </h2>
             <p className="text-sm text-soft mt-1">
-              A fresh page in the logbook, learner or author.
+              {t("auth.registerSub")}
             </p>
             <Form
               layout="vertical"
@@ -197,56 +199,56 @@ function AuthPage() {
             >
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter your name" }]}
+                label={t("auth.name")}
+                rules={[{ required: true, message: t("auth.needName") }]}
               >
                 <input type="text" placeholder="Ada Lovelace" autoComplete="name" />
               </Form.Item>
               <Form.Item
                 name="email"
-                label="Email"
-                rules={[{ required: true, message: "Please enter your email" }]}
+                label={t("auth.email")}
+                rules={[{ required: true, message: t("auth.needEmail") }]}
               >
                 <input type="email" placeholder="you@lab.example" autoComplete="email" />
               </Form.Item>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
                 <Form.Item
                   name="password"
-                  label="Password"
-                  rules={[{ required: true, message: "Please enter your password" }]}
+                  label={t("auth.password")}
+                  rules={[{ required: true, message: t("auth.needPassword") }]}
                 >
                   <input type="password" placeholder="••••••••" autoComplete="new-password" />
                 </Form.Item>
                 <Form.Item
                   name="confirmPassword"
-                  label="Confirm Password"
-                  rules={[{ required: true, message: "Please confirm your password" }]}
+                  label={t("auth.confirmPassword")}
+                  rules={[{ required: true, message: t("auth.needConfirm") }]}
                 >
                   <input type="password" placeholder="••••••••" autoComplete="new-password" />
                 </Form.Item>
               </div>
               <Form.Item
                 name="isAdmin"
-                label="Register as"
-                rules={[{ required: true, message: "Please select a role" }]}
+                label={t("auth.registerAs")}
+                rules={[{ required: true, message: t("auth.needRole") }]}
               >
                 <select>
-                  <option value={false}>Learner — run quizzes</option>
-                  <option value={true}>Author — file exams</option>
+                  <option value={false}>{t("auth.roleLearner")}</option>
+                  <option value={true}>{t("auth.roleAuthor")}</option>
                 </select>
               </Form.Item>
               <button type="submit" className="nb-btn w-full mt-2">
-                Register
+                {t("auth.registerBtn")}
               </button>
             </Form>
             <p className="text-sm mt-4 text-center md:hidden">
-              <span className="text-soft">Page already open? </span>
+              <span className="text-soft">{t("auth.toLogin")} </span>
               <button
                 type="button"
                 onClick={() => go("login")}
                 className="text-accent font-semibold hover:underline"
               >
-                Login here
+                {t("auth.toLoginLink")}
               </button>
             </p>
             </>
@@ -270,12 +272,12 @@ function AuthPage() {
                     : "opacity-0 pointer-events-none"
                 }`}
               >
-                <p className="nb-data text-xs opacity-70">Quiz App · logbook</p>
+                <p className="nb-data text-xs opacity-70">{t("common.appName")} · {t("landing.tagline")}</p>
                 <h2 className="font-display font-extrabold text-3xl mt-2 text-inherit!">
-                  New to the bench?
+                  {t("auth.overlayNew")}
                 </h2>
                 <p className="text-sm mt-2 opacity-80">
-                  Open a fresh page and start filing runs toward Level 100.
+                  {t("auth.overlayNewText")}
                 </p>
                 <button
                   type="button"
@@ -283,7 +285,7 @@ function AuthPage() {
                   onClick={() => go("register")}
                   className="nb-btn-inverse mt-5 self-start"
                 >
-                  Register
+                  {t("auth.overlayRegister")}
                 </button>
               </div>
               <div
@@ -293,12 +295,12 @@ function AuthPage() {
                     : "opacity-0 pointer-events-none"
                 }`}
               >
-                <p className="nb-data text-xs opacity-70">Quiz App · logbook</p>
+                <p className="nb-data text-xs opacity-70">{t("common.appName")} · {t("landing.tagline")}</p>
                 <h2 className="font-display font-extrabold text-3xl mt-2 text-inherit!">
-                  Page already open?
+                  {t("auth.overlayHave")}
                 </h2>
                 <p className="text-sm mt-2 opacity-80">
-                  Sign back in and pick up your streak where it left off.
+                  {t("auth.overlayHaveText")}
                 </p>
                 <button
                   type="button"
@@ -306,7 +308,7 @@ function AuthPage() {
                   onClick={() => go("login")}
                   className="nb-btn-inverse mt-5 self-start"
                 >
-                  Login
+                  {t("auth.overlayLogin")}
                 </button>
               </div>
             </div>

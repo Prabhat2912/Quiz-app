@@ -1,7 +1,11 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { translateBadge } from "../../i18n";
 
 function BadgeCard({ badge, locked = false, isNext = false }) {
-  const icon = badge.icon || "⬢";
+  const { t } = useTranslation();
+  const shown = translateBadge(t, badge);
+  const icon = shown.icon || "⬢";
   const isEmoji = !icon.startsWith("ri-");
   return (
     <div
@@ -21,21 +25,21 @@ function BadgeCard({ badge, locked = false, isNext = false }) {
           <i className={`${icon} text-accent`}></i>
         )}
       </span>
-      <h3 className="font-display font-bold text-sm">{badge.name}</h3>
-      <p className="text-xs text-soft mt-1">{badge.description}</p>
-      {badge.level && (
+      <h3 className="font-display font-bold text-sm">{shown.name}</h3>
+      <p className="text-xs text-soft mt-1">{shown.description}</p>
+      {shown.level && (
         <p className="nb-data text-[11px] text-soft mt-1">
-          Lv {badge.level}
+          {t("common.levelShort", { n: shown.level })}
         </p>
       )}
-      {badge.earnedAt && !locked && (
+      {shown.earnedAt && !locked && (
         <p className="nb-data text-[11px] text-soft mt-1">
-          {new Date(badge.earnedAt).toLocaleDateString()}
+          {new Date(shown.earnedAt).toLocaleDateString()}
         </p>
       )}
       {locked && isNext && (
         <p className="nb-data text-[11px] text-accent font-semibold mt-1">
-          next up
+          {t("badges.nextUp")}
         </p>
       )}
     </div>

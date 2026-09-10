@@ -60,6 +60,15 @@ export const getUserProgressById = async (userId) => {
         return error.response.data
     }
 }
+export const getReportById = async (id) => {
+    try {
+        const response = await axiosInstance.get(`/api/reports/report/${id}`)
+        return response.data
+    }
+    catch (error) {
+        return error.response.data
+    }
+}
 export const getLeaderboard = async (limit = 50) => {
     try {
         const response = await axiosInstance.get(`/api/reports/leaderboard?limit=${limit}`)

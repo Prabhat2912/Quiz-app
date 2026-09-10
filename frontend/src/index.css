@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 /* Class-driven dark theme (Tailwind v4 needs this declared). */
@@ -22,7 +22,7 @@
 .border-pass\! { border-color: var(--pass) !important; }
 .border-fail\! { border-color: var(--fail) !important; }
 .font-display {
-  font-family: "Archivo", system-ui, sans-serif;
+  font-family: "Archivo", system-ui, "Noto Sans Devanagari", sans-serif;
   letter-spacing: -0.015em;
 }
 .font-data {
@@ -67,13 +67,13 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, .font-display {
-  font-family: "Archivo", system-ui, sans-serif;
+  font-family: "Archivo", system-ui, "Noto Sans Devanagari", sans-serif;
   letter-spacing: -0.015em;
 }
 
@@ -109,6 +109,18 @@ code {
   border: 1px solid var(--rule);
   border-radius: 10px;
   box-shadow: 0 1px 0 rgba(var(--shadow), 0.5), 0 12px 28px -18px rgba(var(--shadow), 0.55);
+}
+
+/* Form padding lives outside the utility system: antd injects an
+   unlayered `.ant-form` reset after our sheet, which beats Tailwind v4's
+   layered p-*/m-* utilities on ties. Plain CSS always holds. */
+.nb-form-pad {
+  padding: 24px;
+}
+@media (min-width: 640px) {
+  .nb-form-pad {
+    padding: 32px;
+  }
 }
 
 /* Ruled log row */
@@ -475,9 +487,14 @@ body.dark .ant-table-tbody > tr:hover > td {
 .ant-select-single.ant-select-lg .ant-select-selector {
   height: 42px !important;
 }
-.ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-item,
-.ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-placeholder {
-  line-height: 40px !important;
+/* Multi-select tags (category field): Devanagari top-marks need room,
+   so loosen the tag line box a touch. */
+.ant-select-multiple .ant-select-selection-item {
+  line-height: 1.6;
+  padding-block: 1px;
+}
+.ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-search-input {
+  height: auto !important;
 }
 .ant-select-arrow {
   color: var(--soft) !important;
