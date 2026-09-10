@@ -14,6 +14,13 @@ const examSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    // Content language of title/questions/options/explanations.
+    // Older exams predate the field and read as English.
+    language: {
+        type: String,
+        enum: ["en", "hi"],
+        default: "en"
+    },
     totalMarks: {
         type: Number,
         required: true

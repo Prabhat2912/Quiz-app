@@ -552,4 +552,28 @@ const getXPHistory = async (req, res) => {
     }
 };
 
-module.exports = { addReport, getAllAttempts, getAllReports, getAllAttemptsByUser, getUserProgress, getAnyUserProgress, getLeaderboard, getBadgeCatalog, getXPHistory }
+// GET /api/reports/report/:id — single attempt for review (owner or admin)
+const getReportById = async (req, res) => {
+    try {
+        const report = await Report.findById(req.params.id)
+            .populate("exam", "name category totalMarks passingMarks")
+            .maxTimeMS(10000);
+        if (!report) {
+            return res.status(404).send({ message: "Attempt not found.", success: false });
+        }
+        const requester = await User.findById(req.body.userid).select("isAdmin").maxTimeMS(5000);
+        if (String(report.user) !== String(req.body.userid) && !requester?.isAdmin) {
+            return res.status(403).send({ message: "Admin access required.", success: false });
+        }
+        res.send({
+            message: "Attempt fetched successfully",
+            data: report,
+            success: true,
+        });
+    } catch (error) {
+        console.error("Error in getReportById:", error);
+        res.status(500).send({ message: error.message || "Error fetching attempt", success: false });
+    }
+};
+
+module.exports = { addReport, getAllAttempts, getAllReports, getAllAttemptsByUser, getUserProgress, getAnyUserProgress, getLeaderboard, getBadgeCatalog, getXPHistory, getReportById }

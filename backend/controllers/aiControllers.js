@@ -21,7 +21,7 @@ const createExam = async (req, res) => {
                 });
             }
 
-            const { category, name, duration, totalMarks, passingMarks } = req.body;
+            const { category, name, duration, totalMarks, passingMarks, language } = req.body;
 
             const examExists = await Exam.findOne({ name }).maxTimeMS(5000);
             if (examExists) {
@@ -35,6 +35,7 @@ const createExam = async (req, res) => {
                 name,
                 duration,
                 category,
+                language: language === "hi" ? "hi" : "en",
                 totalMarks,
                 passingMarks,
                 questions: []
@@ -63,6 +64,7 @@ Rules:
 - correctOptions: An array of strings containing the correct option labels (e.g., ["A"] or ["A","C"])
 - options: An object where keys are option labels (A, B, C, D) and values are the option texts
 - explanation: A clear, educational explanation (2-3 sentences) about why the correct answer is right
+- Language: ${language === "hi" ? "Write the question text, options and explanations in Hindi using Devanagari script." : "Write everything in English."}
 - Return only valid JSON array, no extra text or formatting
 - Make sure the JSON is valid and follows the schema exactly`;
 
@@ -121,6 +123,22 @@ Rules:
 
             console.log(`Creating ${questions.length} questions`);
 
+            // For Hindi exams the authored (often English) title is converted
+            // too, so the whole file reads in one language. Never fatal: on
+            // any failure the authored title simply stays.
+            if (language === "hi" && name) {
+                try {
+                    const translated = await Promise.race([
+                        chat(`Translate this exam title into Hindi using Devanagari script. Return ONLY the translated title, no quotes or extra text: ${name}`),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('AI API timeout')), 10000)),
+                    ]);
+                    const cleanTitle = String(translated || "").trim().replace(/^["'«»]+|["'«»]+$/g, "");
+                    if (cleanTitle) savedExam.name = cleanTitle;
+                } catch (titleError) {
+                    console.error("Title translation skipped:", titleError.message);
+                }
+            }
+
             // Use bulk insert for better performance
             const questionsToInsert = questions.map(questionData => ({
                 name: questionData.name,
@@ -174,7 +192,7 @@ Rules:
 }
 const generateExplanation = async (req, res) => {
     try {
-        const { questionText, correctOptions, options, category } = req.body;
+        const { questionText, correctOptions, options, category, language } = req.body;
 
         if (!questionText || !correctOptions || !options) {
             return res.status(400).json({
@@ -188,7 +206,7 @@ const generateExplanation = async (req, res) => {
         const allOptions = Object.entries(options).map(([key, value]) => `${key}: ${value}`).join('\n');
 
         const prompt = `Generate a clear and concise explanation for the following question. Explain why the correct answer is right and provide educational context.
-
+${language === "hi" ? "Respond in Hindi using Devanagari script." : ""}
 Question: ${questionText}
 ${category ? `Category: ${category}` : ''}
 

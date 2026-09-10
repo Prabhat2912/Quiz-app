@@ -102,6 +102,7 @@ const editExam = async (req, res) => {
         exam.name = req.body.name;
         exam.duration = req.body.duration;
         exam.category = req.body.category;
+        exam.language = req.body.language || exam.language || "en";
         exam.totalMarks = req.body.totalMarks;
         exam.passingMarks = req.body.passingMarks;
         await exam.save()
