@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-// Ant Design first: our tokens and Tailwind utilities must win every
-// equal-specificity tie (e.g. antd's `.ant-form{padding:0}` vs `p-6`).
-import "antd/dist/antd.min.css";
+// Ant Design v5+ ships styles at runtime via CSS-in-JS — no dist CSS file
+// to import (the old antd.min.css import breaks the build). Component
+// styles inject after this sheet, so brand-critical overrides below use
+// !important or higher specificity to hold.
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";

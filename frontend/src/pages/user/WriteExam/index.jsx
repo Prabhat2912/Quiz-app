@@ -250,16 +250,16 @@ function WriteExam() {
                     "option flex items-center p-3 cursor-pointer transition-colors duration-150";
                   if (!submitted) {
                     if (isSelected) {
-                      optionClasses += " !border-accent nb-tint-accent";
+                      optionClasses += " border-accent! nb-tint-accent";
                     } else {
                       optionClasses += " hover:border-accent";
                     }
                   }
                   if (submitted) {
                     if (isCorrectOption) {
-                      optionClasses += " !border-pass nb-tint-pass";
+                      optionClasses += " border-pass! nb-tint-pass";
                     } else if (isSelected && !isCorrectOption) {
-                      optionClasses += " !border-fail nb-tint-fail";
+                      optionClasses += " border-fail! nb-tint-fail";
                     }
                   }
 
@@ -479,9 +479,9 @@ function WriteExam() {
 
                           let optionStyle = "option p-2.5 text-[15px] ";
                           if (isCorrectOption) {
-                            optionStyle += "!border-pass nb-tint-pass font-medium";
+                            optionStyle += "border-pass! nb-tint-pass font-medium";
                           } else if (isSelected && !isCorrectOption) {
-                            optionStyle += "!border-fail nb-tint-fail";
+                            optionStyle += "border-fail! nb-tint-fail";
                           }
 
                           return (

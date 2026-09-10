@@ -16,10 +16,10 @@ function LandingPage() {
             </span>
           </span>
           <nav className="flex items-center gap-2" aria-label="Account">
-            <Link to="/login" className="nb-btn-ghost !py-2 !px-4 text-sm">
+            <Link to="/login" className="nb-btn-ghost py-2! px-4! text-sm">
               Log in
             </Link>
-            <Link to="/register" className="nb-btn !py-2 !px-4 text-sm">
+            <Link to="/register" className="nb-btn py-2! px-4! text-sm">
               Open a page
             </Link>
             <ThemeBtn />
@@ -118,7 +118,7 @@ function LandingPage() {
                 readings.
               </p>
             </li>
-            <li className="p-6 border-t md:border-t-0">
+            <li className="p-6 border-t border-rule md:border-t-0">
               <p className="nb-data text-xs text-soft">03</p>
               <h3 className="font-display font-bold mt-1">Get stamped</h3>
               <p className="text-sm text-soft mt-1">
@@ -163,7 +163,7 @@ function LandingPage() {
               <li>Review every attempt and preview any exam by running it.</li>
               <li>Open any learner's profile and logbook from the standings.</li>
             </ul>
-            <Link to="/register" className="nb-btn inline-block mt-4 !py-2 !px-4 text-sm">
+            <Link to="/register" className="nb-btn inline-block mt-4 py-2! px-4! text-sm">
               Register as author or learner
             </Link>
           </div>

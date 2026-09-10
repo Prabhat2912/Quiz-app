@@ -173,7 +173,7 @@ function AddEditQuestion(props) {
               <span>Explanation (Optional - shown for wrong answers)</span>
               <button
                 type="button"
-                className="nb-btn !py-1.5 !px-3 !text-sm ml-2"
+                className="nb-btn py-1.5! px-3! text-sm! ml-2"
                 onClick={handleGenerateExplanation}
                 disabled={generatingExplanation}
               >

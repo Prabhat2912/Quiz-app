@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
@@ -18,6 +18,9 @@ function ForgotPassword({ onDone, onBack }) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  // After one failed attempt auto-submit stays off: retries are manual.
+  const [autoLocked, setAutoLocked] = useState(false);
+  const busyRef = useRef(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -52,10 +55,9 @@ function ForgotPassword({ onDone, onBack }) {
     sendCode(email.trim());
   };
 
-  const submitOtp = async (e) => {
-    e.preventDefault();
-    const code = otp.trim();
-    if (code.length !== 6) return message.error("Enter the 6-digit code.");
+  const doVerifyOtp = async (code) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
     try {
       dispatch(ShowLoading());
       const res = await verifyResetOtp({ email, otp: code });
@@ -64,6 +66,7 @@ function ForgotPassword({ onDone, onBack }) {
         setResetToken(res.data.resetToken);
         setStep("reset");
       } else {
+        setAutoLocked(true);
         message.error(
           res.attemptsLeft !== undefined
             ? `${res.message} (${res.attemptsLeft} tries left)`
@@ -72,7 +75,25 @@ function ForgotPassword({ onDone, onBack }) {
       }
     } catch (err) {
       dispatch(HideLoading());
+      setAutoLocked(true);
       message.error(err.message);
+    } finally {
+      busyRef.current = false;
+    }
+  };
+
+  const submitOtp = (e) => {
+    e.preventDefault();
+    const code = otp.trim();
+    if (code.length !== 6) return message.error("Enter the 6-digit code.");
+    doVerifyOtp(code);
+  };
+
+  const handleOtpChange = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 6);
+    setOtp(digits);
+    if (digits.length === 6 && !autoLocked) {
+      doVerifyOtp(digits);
     }
   };
 
@@ -139,13 +160,13 @@ function ForgotPassword({ onDone, onBack }) {
             <label htmlFor="fp-otp" className="text-sm font-medium">Verification code</label>
             <input
               id="fp-otp"
-              className="nb-data mt-1 text-center !text-xl !tracking-[0.4em]"
+              className="nb-data mt-1 text-center text-xl! tracking-[0.4em]!"
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
               placeholder="••••••"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+              onChange={(e) => handleOtpChange(e.target.value)}
             />
             <button type="submit" className="nb-btn w-full mt-3">
               Verify code

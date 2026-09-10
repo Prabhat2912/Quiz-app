@@ -87,7 +87,7 @@ function ProfilePage() {
             </div>
           </dl>
           <button
-            className="nb-btn !py-2 !px-3 text-sm mt-4"
+            className="nb-btn py-2! px-3! text-sm mt-4"
             onClick={() => navigate("/user/progress")}
           >
             Open logbook

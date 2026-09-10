@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, message } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginUser, registerUser } from "../../../apicalls/users";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
@@ -20,8 +20,10 @@ function AuthPage() {
   const go = (next) => navigate(next === "register" ? "/register" : "/login");
   // Left panel sub-views: plain login | forgot-password flow | email OTP check.
   const [leftView, setLeftView] = useState({ name: "login" });
-  // Address awaiting post-registration verification (right panel).
-  const [pendingRegEmail, setPendingRegEmail] = useState(null);
+  // Registration awaiting verification (kept in memory only, cleared after use).
+  const [pendingReg, setPendingReg] = useState(null);
+  // Last blocked-login attempt, for auto sign-in after verification.
+  const [lastAttempt, setLastAttempt] = useState(null);
 
   const onLogin = async (values) => {
     try {
@@ -33,6 +35,7 @@ function AuthPage() {
         localStorage.setItem("token", response.data);
         window.location.href = "/";
       } else if (response.needsVerification && response.email) {
+        setLastAttempt({ email: response.email, password: values.password });
         setLeftView({ name: "verify", email: response.email });
         message.info(response.message);
       } else {
@@ -54,7 +57,7 @@ function AuthPage() {
       dispatch(HideLoading());
       if (response.success && response.needsVerification) {
         message.success(response.message);
-        setPendingRegEmail(response.email);
+        setPendingReg({ email: response.email, password: values.password });
       } else if (response.success) {
         message.success(response.message);
         go("login");
@@ -68,7 +71,14 @@ function AuthPage() {
   };
 
   return (
-    <div className="nb-page min-h-screen flex p-4 sm:p-8">
+    <div className="nb-page min-h-screen flex p-4 pt-16 sm:p-8 relative">
+      <Link
+        to="/"
+        className="nb-btn-ghost py-2! px-3! text-sm absolute top-4 left-4 z-10"
+      >
+        <i className="ri-home-line mr-1" aria-hidden="true"></i>
+        Home
+      </Link>
       <div className="nb-sheet w-full max-w-4xl m-auto overflow-hidden">
         <div className="grid md:grid-cols-2 relative items-stretch">
           {/* Left — login / recovery / verification */}
@@ -88,7 +98,14 @@ function AuthPage() {
             ) : leftView.name === "verify" ? (
               <VerifyEmailOtp
                 email={leftView.email}
-                onVerified={() => setLeftView({ name: "login" })}
+                onVerified={async () => {
+                  const creds = lastAttempt;
+                  setLastAttempt(null);
+                  setLeftView({ name: "login" });
+                  if (creds?.password) {
+                    await onLogin({ email: creds.email, password: creds.password });
+                  }
+                }}
                 onBack={() => setLeftView({ name: "login" })}
               />
             ) : (
@@ -149,14 +166,19 @@ function AuthPage() {
               mode !== "register" ? "hidden md:flex" : ""
             }`}
           >
-            {pendingRegEmail ? (
+            {pendingReg ? (
               <VerifyEmailOtp
-                email={pendingRegEmail}
-                onVerified={() => {
-                  setPendingRegEmail(null);
-                  go("login");
+                email={pendingReg.email}
+                onVerified={async () => {
+                  const creds = pendingReg;
+                  setPendingReg(null);
+                  if (creds?.password) {
+                    await onLogin({ email: creds.email, password: creds.password });
+                  } else {
+                    go("login");
+                  }
                 }}
-                onBack={() => setPendingRegEmail(null)}
+                onBack={() => setPendingReg(null)}
               />
             ) : (
             <>
@@ -249,7 +271,7 @@ function AuthPage() {
                 }`}
               >
                 <p className="nb-data text-xs opacity-70">Quiz App · logbook</p>
-                <h2 className="font-display font-extrabold text-3xl mt-2 !text-inherit">
+                <h2 className="font-display font-extrabold text-3xl mt-2 text-inherit!">
                   New to the bench?
                 </h2>
                 <p className="text-sm mt-2 opacity-80">
@@ -272,7 +294,7 @@ function AuthPage() {
                 }`}
               >
                 <p className="nb-data text-xs opacity-70">Quiz App · logbook</p>
-                <h2 className="font-display font-extrabold text-3xl mt-2 !text-inherit">
+                <h2 className="font-display font-extrabold text-3xl mt-2 text-inherit!">
                   Page already open?
                 </h2>
                 <p className="text-sm mt-2 opacity-80">

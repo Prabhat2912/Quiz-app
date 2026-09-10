@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
@@ -13,6 +13,9 @@ const RESEND_COOLDOWN = 30;
 function VerifyEmailOtp({ email, onVerified, onBack }) {
   const [otp, setOtp] = useState("");
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
+  // After one failed attempt auto-submit stays off: retries are manual.
+  const [autoLocked, setAutoLocked] = useState(false);
+  const busyRef = useRef(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -21,12 +24,9 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
     return () => clearTimeout(t);
   }, [cooldown]);
 
-  const submit = async (e) => {
-    e.preventDefault();
-    const code = otp.trim();
-    if (code.length !== 6) {
-      return message.error("Enter the 6-digit code.");
-    }
+  const doSubmit = async (code) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
     try {
       dispatch(ShowLoading());
       const res = await verifyEmail({ email, otp: code });
@@ -35,6 +35,7 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
         message.success(res.message);
         onVerified();
       } else {
+        setAutoLocked(true);
         message.error(
           res.attemptsLeft !== undefined
             ? `${res.message} (${res.attemptsLeft} tries left)`
@@ -43,7 +44,27 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
       }
     } catch (err) {
       dispatch(HideLoading());
+      setAutoLocked(true);
       message.error(err.message);
+    } finally {
+      busyRef.current = false;
+    }
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+    const code = otp.trim();
+    if (code.length !== 6) {
+      return message.error("Enter the 6-digit code.");
+    }
+    doSubmit(code);
+  };
+
+  const handleChange = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 6);
+    setOtp(digits);
+    if (digits.length === 6 && !autoLocked) {
+      doSubmit(digits);
     }
   };
 
@@ -78,13 +99,13 @@ function VerifyEmailOtp({ email, onVerified, onBack }) {
         </label>
         <input
           id="verify-otp"
-          className="nb-data mt-1 text-center !text-xl !tracking-[0.4em]"
+          className="nb-data mt-1 text-center text-xl! tracking-[0.4em]!"
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={6}
           placeholder="••••••"
           value={otp}
-          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+          onChange={(e) => handleChange(e.target.value)}
         />
         <button type="submit" className="nb-btn w-full mt-3">
           Verify email

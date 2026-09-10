@@ -49,7 +49,7 @@ function ProtectedRoute({ children }) {
         icon: <i className="ri-logout-box-line"></i>,
         onClick: () => {
           localStorage.removeItem("token");
-          navigate("/login");
+          window.location.href = "/";
         },
       },
     ],
@@ -94,7 +94,7 @@ function ProtectedRoute({ children }) {
         icon: <i className="ri-logout-box-line"></i>,
         onClick: () => {
           localStorage.removeItem("token");
-          navigate("/login");
+          window.location.href = "/";
         },
       },
     ],

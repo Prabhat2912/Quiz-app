@@ -6,7 +6,7 @@ function BadgeCard({ badge, locked = false, isNext = false }) {
   return (
     <div
       className={`nb-specimen ${locked ? "nb-specimen-locked" : ""} ${
-        isNext ? "!border-accent" : ""
+        isNext ? "border-accent!" : ""
       } flex flex-col items-center p-4 text-center`}
     >
       <span

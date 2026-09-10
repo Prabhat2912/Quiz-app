@@ -261,7 +261,7 @@ function AddEditExam() {
       <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-rule">
         {!id && (
           <button
-            className="nb-btn-ghost !py-2 text-sm"
+            className="nb-btn-ghost py-2! text-sm"
             type="button"
             onClick={() => {
               form
@@ -287,7 +287,7 @@ function AddEditExam() {
           Cancel
         </button>
         <button
-          className="nb-btn !py-2 text-sm"
+          className="nb-btn py-2! text-sm"
           type="submit"
         >
           {id ? "File amendments" : "Save exam"}
@@ -315,37 +315,41 @@ function AddEditExam() {
           className="nb-sheet p-6 sm:p-8"
         >
             {id ? (
-            <Tabs defaultActiveKey="1">
-              <Tabs.TabPane tab="Details" key="1">
-                {detailsBlock}
-              </Tabs.TabPane>
-              <Tabs.TabPane
-                tab={`Questions${examData?.questions ? ` (${examData.questions.length})` : ""}`}
-                key="2"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <p className="nb-data text-xs text-soft">
-                    {examData?.questions?.length || 0} entries filed
-                  </p>
-                  <button
-                    className="nb-btn !py-2 text-sm"
-                    type="button"
-                    onClick={() => {
-                      setShowAddEditQuestionModal(true);
-                    }}
-                  >
-                    <i className="ri-add-line mr-1" aria-hidden="true"></i>
-                    File a question
-                  </button>
-                </div>
-                <Table
-                  columns={questionColumns}
-                  dataSource={examData?.questions}
-                  className="min-w-[700px]"
-                  rowKey="_id" // ✅ added to prevent React key warning
-                ></Table>
-              </Tabs.TabPane>
-            </Tabs>
+            <Tabs
+              defaultActiveKey="1"
+              items={[
+                { key: "1", label: "Details", children: detailsBlock },
+                {
+                  key: "2",
+                  label: `Questions${examData?.questions ? ` (${examData.questions.length})` : ""}`,
+                  children: (
+                    <>
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <p className="nb-data text-xs text-soft">
+                          {examData?.questions?.length || 0} entries filed
+                        </p>
+                        <button
+                          className="nb-btn py-2! text-sm"
+                          type="button"
+                          onClick={() => {
+                            setShowAddEditQuestionModal(true);
+                          }}
+                        >
+                          <i className="ri-add-line mr-1" aria-hidden="true"></i>
+                          File a question
+                        </button>
+                      </div>
+                      <Table
+                        columns={questionColumns}
+                        dataSource={examData?.questions}
+                        className="min-w-[700px]"
+                        rowKey="_id" // ✅ added to prevent React key warning
+                      ></Table>
+                    </>
+                  ),
+                },
+              ]}
+            />
           ) : (
             detailsBlock
           )}

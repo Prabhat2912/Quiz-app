@@ -57,13 +57,13 @@ function HomePage() {
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 <button
-                  className="nb-btn !py-2 !px-3 text-sm"
+                  className="nb-btn py-2! px-3! text-sm"
                   onClick={() => navigate("/user/progress")}
                 >
                   Open logbook
                 </button>
                 <button
-                  className="nb-btn-ghost !py-2 !px-3 text-sm"
+                  className="nb-btn-ghost py-2! px-3! text-sm"
                   onClick={() => navigate("/leaderboard")}
                 >
                   Standings
@@ -150,13 +150,13 @@ function HomePage() {
                   {user.isAdmin ? (
                     <div className="flex flex-wrap gap-2">
                       <button
-                        className="nb-btn !py-2 !px-4 text-sm"
+                        className="nb-btn py-2! px-4! text-sm"
                         onClick={() => navigate(`/user/write-exam/${exam._id}`)}
                       >
                         Begin run
                       </button>
                       <button
-                        className="nb-btn-ghost !py-2 !px-3 text-sm"
+                        className="nb-btn-ghost py-2! px-3! text-sm"
                         onClick={() => navigate(`/admin/exams/edit/${exam._id}`)}
                       >
                         Open file
@@ -164,7 +164,7 @@ function HomePage() {
                     </div>
                   ) : (
                     <button
-                      className="nb-btn !py-2 !px-4 text-sm"
+                      className="nb-btn py-2! px-4! text-sm"
                       onClick={() => navigate(`/user/write-exam/${exam._id}`)}
                     >
                       Begin run

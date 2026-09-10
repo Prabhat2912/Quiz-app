@@ -37,7 +37,7 @@ function LevelUpModal({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onClose}
       footer={null}
       centered
@@ -45,7 +45,7 @@ function LevelUpModal({
     >
       <div className="text-center p-2">
         <div key={String(visible)} className="nb-stamp-land inline-block">
-          <span className="nb-stamp nb-stamp-pass !text-base !px-5 !py-2">
+          <span className="nb-stamp nb-stamp-pass text-base! px-5! py-2!">
             Recorded
           </span>
         </div>
