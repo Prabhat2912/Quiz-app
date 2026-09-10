@@ -99,7 +99,7 @@ function AdminReportsPage() {
           onChange={(e) => setFilters({ ...filters, userName: e.target.value })}
         />
         <button
-          className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear rounded-md cursor-pointer"
+          className="primary-outlined-btn rounded-md cursor-pointer"
           onClick={() => {
             setFilters({
               userName: "",
@@ -114,7 +114,7 @@ function AdminReportsPage() {
           Clear
         </button>
         <button
-          className="primary-contained-btn dark:bg-black dark:border-black  dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md cursor-pointer"
+          className="primary-contained-btn rounded-md cursor-pointer"
           onClick={() => getData(filters)}
         >
           Search

@@ -1,12 +1,41 @@
 :root {
-    --primary: #0F3460;
-    --secondary: #ff5722;
-    --success: #4caf50;
-    --info: #00bcd4;
-    --warning: #ff9800;
-    --danger: #f44336;
-    --light: #f1f1f1;
-    --dark: #212121;
+    --primary: #0b6b4f;
+    --secondary: #5f6e64;
+    --success: #0b6b4f;
+    --info: #0b6b4f;
+    --warning: #9a6b0f;
+    --danger: #b3352b;
+    --light: #fcfcf9;
+    --dark: #17211b;
+    --paper: #f4f5f1;
+    --sheet: #fcfcf9;
+    --ink: #17211b;
+    --soft: #5f6e64;
+    --rule: #dfe4dc;
+    --accent: #0b6b4f;
+    --accent-deep: #084f3a;
+    --pass: #0b6b4f;
+    --fail: #b3352b;
+}
+
+body.dark {
+    --primary: #34d399;
+    --secondary: #9aa79e;
+    --success: #34d399;
+    --info: #34d399;
+    --warning: #d9a83e;
+    --danger: #e07a63;
+    --light: #141c17;
+    --dark: #e9eee9;
+    --paper: #0d1310;
+    --sheet: #141c17;
+    --ink: #e9eee9;
+    --soft: #9aa79e;
+    --rule: #27332c;
+    --accent: #34d399;
+    --accent-deep: #6ee7b7;
+    --pass: #34d399;
+    --fail: #e07a63;
 }
 
 .bg-primary{
@@ -14,7 +43,7 @@
 }
 
 .bg-white{
-    background-color: var(--light) !important;
+    background-color: var(--sheet) !important;
 }
 
 .text-white{

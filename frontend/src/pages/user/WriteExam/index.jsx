@@ -9,8 +9,11 @@ import { addReport } from "../../../apicalls/reports";
 import { getUserInfo } from "../../../apicalls/users";
 import { SetUser } from "../../../redux/usersSlice";
 import { useSelector } from "react-redux";
+import LevelUpModal from "../../../components/gamification/LevelUpModal";
 
 function WriteExam() {
+  const [gamification, setGamification] = useState(null);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [examData, setExamData] = useState();
   const [questions, setQuestions] = useState([]);
   const [totalMarks, setTotalMarks] = useState(0);
@@ -94,22 +97,12 @@ function WriteExam() {
       });
       dispatch(HideLoading());
       if (response.success) {
-        // Show XP earned message if available
-        if (response.data?.xpEarned) {
-          message.success(
-            `Quiz completed! You earned ${response.data.xpEarned} XP!`
-          );
-          if (response.data.leveledUp) {
-            message.success(
-              `🎉 Level Up! You're now Level ${response.data.newLevel}!`,
-              3
-            );
-          }
-          if (response.data.newBadges && response.data.newBadges.length > 0) {
-            response.data.newBadges.forEach((badge) => {
-              message.success(`🏅 New Badge Earned: ${badge.name}!`, 3);
-            });
-          }
+        // Store gamification payload for celebration modal + result card
+        if (response.data?.xpEarned !== undefined) {
+          setGamification(response.data);
+          setShowCelebration(true);
+        } else {
+          message.success("Quiz completed!");
         }
 
         // Refresh user data to update XP/Level in header
@@ -195,10 +188,12 @@ function WriteExam() {
 
   return (
     examData && (
-      <div className="mt-2  h-full   ">
-        <div className="divider"></div>
-        <h1 className="text-center text-3xl font-bold">{examData.name}</h1>
-        <div className="divider"></div>
+      <div className="mt-2 h-full">
+        <p className="nb-data text-xs text-soft text-center">
+          experiment file · {examData.category}
+        </p>
+        <h1 className="text-center font-display font-extrabold text-2xl sm:text-3xl mt-1">{examData.name}</h1>
+        <div className="divider mt-3"></div>
 
         {view === "instructions" && (
           <Instructions
@@ -211,25 +206,32 @@ function WriteExam() {
         )}
 
         {view === "questions" && questions.length > 0 && (
-          <div className="flex flex-col gap-4 mt-4  ">
-            <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
-              <div
-                className="bg-blue-600 dark:bg-black h-4 rounded-full transition-all duration-300 ease-linear"
-                style={{ width: `${progress}%` }}
-              />
+          <div className="flex flex-col gap-4 mt-4">
+            <div className="flex items-center gap-3">
+              <div className="nb-meter h-2.5 flex-1" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin="0" aria-valuemax="100" aria-label="Exam progress">
+                <div
+                  style={{ "--fill": progress / 100 }}
+                />
+              </div>
+              <span className="nb-data text-xs text-soft whitespace-nowrap">
+                {selectedQuestionIndex + 1}/{questions.length}
+              </span>
             </div>
 
-            <div className="flex flex-wrap justify-between">
-              <h1 className="text-2xl flex flex-wrap  font-semibold">
-                {selectedQuestionIndex + 1} :{" "}
+            <div className="flex flex-wrap justify-between items-start gap-2">
+              <h2 className="font-display font-bold text-lg sm:text-xl flex flex-wrap items-center gap-2">
+                <span className="nb-data text-sm text-soft font-medium">
+                  Q{selectedQuestionIndex + 1}
+                </span>
                 {questions[selectedQuestionIndex].name}{" "}
                 {questions[selectedQuestionIndex]?.correctOptions?.length >
                   1 && (
-                  <span className="text-md text-red-500">Multiple Correct</span>
+                  <span className="nb-chip">multiple correct</span>
                 )}
-              </h1>
-              <div className="text-xl font-medium">
-                <span>{secondsLeft} seconds left</span>
+              </h2>
+              <div className="nb-data text-sm font-semibold text-accent whitespace-nowrap" role="timer" aria-label="Time remaining">
+                <i className="ri-timer-line mr-1" aria-hidden="true"></i>
+                {secondsLeft}s left
               </div>
             </div>
             <div className="flex flex-col gap-2">
@@ -245,113 +247,169 @@ function WriteExam() {
                   ).includes(option);
 
                   let optionClasses =
-                    "flex items-center p-2 rounded border cursor-pointer transition duration-200";
+                    "option flex items-center p-3 cursor-pointer transition-colors duration-150";
                   if (!submitted) {
                     if (isSelected) {
-                      optionClasses += " bg-gray-400 border-gray-400";
+                      optionClasses += " !border-accent nb-tint-accent";
+                    } else {
+                      optionClasses += " hover:border-accent";
                     }
                   }
                   if (submitted) {
                     if (isCorrectOption) {
-                      optionClasses +=
-                        " dark:bg-gray-400 dark:border-gray-600  bg-green-100 border-green-400";
+                      optionClasses += " !border-pass nb-tint-pass";
                     } else if (isSelected && !isCorrectOption) {
-                      optionClasses +=
-                        " dark:bg-gray-600 dark:border-gray-800 bg-red-100 border-red-400";
-                    } else {
-                      optionClasses += " border-gray-300";
+                      optionClasses += " !border-fail nb-tint-fail";
                     }
-                  } else {
-                    optionClasses +=
-                      " hover:bg-gray-400 bg-gray-300 hover:border-gray-400 ";
                   }
 
                   return (
-                    <div
-                      className={optionClasses}
+                    <button
+                      type="button"
+                      className={`${optionClasses} text-left w-full`}
                       key={index}
+                      aria-pressed={isSelected}
+                      disabled={submitted}
                       onClick={() => {
                         if (!submitted) {
                           toggleOption(selectedQuestionIndex, option);
                         }
                       }}
                     >
-                      <h1 className="text-xl">
-                        {option} :{" "}
+                      <span className="nb-data text-sm font-bold text-accent w-7 shrink-0">
+                        {option}
+                      </span>
+                      <span className="text-[15px]">
                         {questions[selectedQuestionIndex].options[option]}
-                      </h1>
-                    </div>
+                      </span>
+                      {submitted && isCorrectOption && (
+                        <i className="ri-check-line ml-auto text-pass" aria-label="Correct option"></i>
+                      )}
+                      {submitted && isSelected && !isCorrectOption && (
+                        <i className="ri-close-line ml-auto text-fail" aria-label="Wrong selection"></i>
+                      )}
+                    </button>
                   );
                 }
               )}
             </div>
 
             {submitted ? (
-              <div className="flex flex-col items-center">
-                <h1
-                  className={`text-xl font-bold ${
+              <div className="flex flex-col items-center gap-3">
+                <p
+                  className={`nb-stamp ${
                     currentAnswerResult === "Correct"
-                      ? "text-green-600 dark:text-gray-400 "
-                      : "text-red-600 dark:text-gray-600"
+                      ? "nb-stamp-pass"
+                      : "nb-stamp-fail"
                   }`}
                 >
-                  {currentAnswerResult} Answer
-                </h1>
+                  {currentAnswerResult}
+                </p>
 
                 {selectedQuestionIndex < questions.length - 1 && (
                   <button
-                    className="bg-blue-500 dark:bg-black dark:hover:bg-black/80 text-white px-4 py-2 rounded mt-1 hover:bg-blue-600 "
+                    className="nb-btn"
                     onClick={() => {
                       setSelectedQuestionIndex(selectedQuestionIndex + 1);
                       setCurrentAnswerResult(null);
                       setSubmitted(false);
                     }}
                   >
-                    Next Question
+                    Next question
                   </button>
                 )}
                 {selectedQuestionIndex === questions.length - 1 && (
                   <button
-                    className="bg-blue-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition"
+                    className="nb-btn"
                     onClick={() => {
                       clearInterval(intervalId);
                       setTimeUp(true);
                     }}
                   >
-                    Submit Exam
+                    File the run
                   </button>
                 )}
               </div>
             ) : (
               <div className="w-full flex justify-center items-center">
                 <button
-                  className="bg-green-500 dark:bg-black dark:hover:bg-black/50 w-40 text-white px-4 py-2 rounded mt-4 hover:bg-green-600 transition"
+                  className="nb-btn w-44 mt-2"
                   onClick={handleAnswerSubmit}
                 >
-                  Submit Answer
+                  Log answer
                 </button>
               </div>
             )}
           </div>
         )}
         {view === "result" && (
-          <div className="flex min-w-[250px] justify-center mt-6 gap-4">
-            <div className="flex flex-col gap-4 bg-white p-6 rounded shadow-md">
-              <h1 className="text-2xl font-bold">Result</h1>
-              <div className="flex flex-col gap-2">
-                <h1 className="text-md">Total Marks : {examData.totalMarks}</h1>
-                <h1 className="text-md">
-                  Passing Marks : {examData.passingMarks}
-                </h1>
-                <h1 className="text-md">Obtained Marks : {obtainedMarks}</h1>
-                <h1 className="text-md">
-                  Wrong Answers : {result.wrongAnswers.length}
-                </h1>
-                <h1 className="text-md">Verdict : {result.verdict}</h1>
+          <div className="flex justify-center mt-6">
+            <div className="nb-sheet p-6 sm:p-8 w-full max-w-lg">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-display font-extrabold text-xl">Run record</h2>
+                <span
+                  className={`nb-stamp ${
+                    result.verdict === "Pass" ? "nb-stamp-pass" : "nb-stamp-fail"
+                  }`}
+                >
+                  {result.verdict}
+                </span>
               </div>
-              <div className="flex gap-4 mt-4">
+              {gamification && (
+                <div className="nb-specimen p-4 mt-4">
+                  <p className="nb-data text-2xl font-bold text-accent">
+                    +{gamification.xpEarned} <span className="text-sm font-medium">XP entered</span>
+                  </p>
+                  {gamification.xpBreakdown && (
+                    <p className="nb-data text-xs text-soft mt-1">
+                      correct +{gamification.xpBreakdown.perCorrect}
+                      {gamification.xpBreakdown.pass
+                        ? ` · pass +${gamification.xpBreakdown.pass}`
+                        : ""}
+                      {gamification.xpBreakdown.perfect
+                        ? ` · perfect +${gamification.xpBreakdown.perfect}`
+                        : ""}
+                      {gamification.xpBreakdown.streak
+                        ? ` · streak +${gamification.xpBreakdown.streak}`
+                        : ""}
+                    </p>
+                  )}
+                  {gamification.leveledUp && (
+                    <p className="nb-data text-sm font-bold mt-2">
+                      Level {gamification.oldLevel} → {gamification.newLevel}
+                    </p>
+                  )}
+                  {gamification.newBadges?.length > 0 && (
+                    <p className="text-sm mt-1">
+                      <span className="text-soft">Specimens: </span>
+                      <span className="font-semibold">
+                        {gamification.newBadges.map((b) => b.name).join(", ")}
+                      </span>
+                    </p>
+                  )}
+                </div>
+              )}
+              <dl className="nb-data text-sm mt-4 space-y-1.5">
+                <div className="flex justify-between border-b border-rule pb-1.5">
+                  <dt className="text-soft">total marks</dt>
+                  <dd className="font-bold">{examData.totalMarks}</dd>
+                </div>
+                <div className="flex justify-between border-b border-rule pb-1.5">
+                  <dt className="text-soft">passing marks</dt>
+                  <dd className="font-bold">{examData.passingMarks}</dd>
+                </div>
+                <div className="flex justify-between border-b border-rule pb-1.5">
+                  <dt className="text-soft">obtained</dt>
+                  <dd className="font-bold">{obtainedMarks}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-soft">wrong answers</dt>
+                  <dd className="font-bold">{result.wrongAnswers.length}</dd>
+                </div>
+              </dl>
+              <div className="flex flex-wrap gap-2 mt-5">
                 <button
-                  className="bg-yellow-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+                  className="nb-btn-ghost"
                   onClick={() => {
                     setView("instructions");
                     setSelectedQuestionIndex(0);
@@ -362,19 +420,19 @@ function WriteExam() {
                     setSecondsLeft(examData.duration);
                   }}
                 >
-                  Retake Exam
+                  Run again
                 </button>
                 <button
-                  className="bg-blue-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                  className="nb-btn-ghost"
                   onClick={() => setView("review")}
                 >
-                  Review Answers
+                  Review entries
                 </button>
                 <button
-                  className="bg-gray-500 dark:bg-black dark:hover:bg-black/50 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+                  className="nb-btn"
                   onClick={() => navigate("/")}
                 >
-                  Close
+                  Bench
                 </button>
               </div>
             </div>
@@ -382,8 +440,8 @@ function WriteExam() {
         )}
 
         {view === "review" && result && (
-          <div className="flex flex-col gap-4 mt-4">
-            <h1 className="text-2xl font-bold mb-4">Review Your Answers</h1>
+          <div className="flex flex-col gap-3 mt-4">
+            <h2 className="font-display font-extrabold text-xl">Entry review</h2>
             {questions.map((question, index) => {
               const selected = selectedOptions[index] || [];
               const correct = question.correctOptions || [
@@ -393,67 +451,53 @@ function WriteExam() {
                 correct.every((option) => selected.includes(option)) &&
                 selected.length === correct.length;
 
-              // Debug log to check if explanation exists
-              if (!isCorrect && !question.explanation) {
-                console.log(
-                  `Question ${index + 1} has no explanation:`,
-                  question.name
-                );
-              }
-
               return (
-                <div
+                <article
                   key={index}
-                  className={`flex flex-col p-4 border-2 rounded-lg shadow-sm ${
-                    isCorrect
-                      ? "bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600"
-                      : "bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600"
-                  }`}
+                  className="nb-sheet p-4 sm:p-5"
                 >
-                  <div className="flex items-start gap-2 mb-3">
+                  <div className="flex items-start gap-3">
                     <span
-                      className={`text-xl font-bold ${
-                        isCorrect
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                      className={`nb-stamp shrink-0 mt-0.5 ${
+                        isCorrect ? "nb-stamp-pass" : "nb-stamp-fail"
                       }`}
                     >
-                      {isCorrect ? "✓" : "✗"}
+                      {isCorrect ? "Logged" : "Missed"}
                     </span>
-                    <div className="flex-1">
-                      <h1 className="text-lg font-semibold mb-2">
-                        Question {index + 1}: {question.name}
-                      </h1>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-display font-bold">
+                        <span className="nb-data text-xs text-soft font-medium mr-2">
+                          Q{index + 1}
+                        </span>
+                        {question.name}
+                      </h3>
 
-                      <div className="flex flex-col gap-2 mb-3">
+                      <div className="flex flex-col gap-2 mt-3">
                         {Object.keys(question.options).map((option) => {
                           const isSelected = selected.includes(option);
                           const isCorrectOption = correct.includes(option);
 
-                          let optionStyle = "p-2 rounded border ";
+                          let optionStyle = "option p-2.5 text-[15px] ";
                           if (isCorrectOption) {
-                            optionStyle +=
-                              "bg-green-200 dark:bg-green-800/40 border-green-500 font-medium";
+                            optionStyle += "!border-pass nb-tint-pass font-medium";
                           } else if (isSelected && !isCorrectOption) {
-                            optionStyle +=
-                              "bg-red-200 dark:bg-red-800/40 border-red-500";
-                          } else {
-                            optionStyle +=
-                              "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600";
+                            optionStyle += "!border-fail nb-tint-fail";
                           }
 
                           return (
                             <div key={option} className={optionStyle}>
-                              <span className="font-semibold">{option}:</span>{" "}
+                              <span className="nb-data text-sm font-bold text-soft mr-2">
+                                {option}
+                              </span>
                               {question.options[option]}
                               {isCorrectOption && (
-                                <span className="ml-2 text-green-700 dark:text-green-300">
-                                  (Correct Answer)
+                                <span className="ml-2 text-xs font-semibold text-pass">
+                                  correct
                                 </span>
                               )}
                               {isSelected && !isCorrectOption && (
-                                <span className="ml-2 text-red-700 dark:text-red-300">
-                                  (Your Answer)
+                                <span className="ml-2 text-xs font-semibold text-fail">
+                                  your pick
                                 </span>
                               )}
                             </div>
@@ -462,33 +506,31 @@ function WriteExam() {
                       </div>
 
                       {!isCorrect && (
-                        <div>
+                        <div className="mt-3">
                           {question.explanation ? (
-                            <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded">
-                              <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">
-                                Explanation:
-                              </h3>
-                              <p className="text-gray-800 dark:text-gray-300">
+                            <div className="nb-specimen p-3">
+                              <h4 className="font-display font-bold text-sm mb-1">
+                                Field note
+                              </h4>
+                              <p className="text-sm">
                                 {question.explanation}
                               </p>
                             </div>
                           ) : (
-                            <div className="mt-3 p-3 bg-gray-100 dark:bg-gray-800 border-l-4 border-gray-400 rounded">
-                              <p className="text-gray-600 dark:text-gray-400 text-sm italic">
-                                No explanation available for this question yet.
-                              </p>
-                            </div>
+                            <p className="text-sm text-soft italic">
+                              No field note filed for this entry yet.
+                            </p>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
-                </div>
+                </article>
               );
             })}
-            <div className="flex justify-center gap-4 mt-4">
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
               <button
-                className="bg-yellow-500 dark:bg-yellow-600 text-white px-6 py-2 rounded hover:bg-yellow-600 dark:hover:bg-yellow-700 transition"
+                className="nb-btn"
                 onClick={() => {
                   setView("instructions");
                   setSelectedQuestionIndex(0);
@@ -497,18 +539,35 @@ function WriteExam() {
                   setCurrentAnswerResult(null);
                   setTimeUp(false);
                   setSecondsLeft(examData.duration);
+                  setGamification(null);
                 }}
               >
-                Retake Exam
+                Run again
               </button>
               <button
-                className="bg-gray-500 dark:bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-700 transition"
+                className="nb-btn-ghost"
                 onClick={() => navigate("/")}
               >
-                Back to Home
+                Bench
               </button>
             </div>
           </div>
+        )}
+        {gamification && (
+          <LevelUpModal
+            visible={showCelebration}
+            onClose={() => setShowCelebration(false)}
+            xpEarned={gamification.xpEarned}
+            oldLevel={gamification.oldLevel}
+            newLevel={gamification.newLevel}
+            leveledUp={gamification.leveledUp}
+            newBadges={gamification.newBadges || []}
+            totalXP={gamification.totalXP}
+            onViewProgress={() => {
+              setShowCelebration(false);
+              navigate("/user/progress");
+            }}
+          />
         )}
       </div>
     )

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PageTitle from "../../../components/PageTitle";
-import { Form, Row, Col, message, Tabs, Table, Select } from "antd";
+import { Form, message, Tabs, Table, Select } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -189,116 +189,166 @@ function AddEditExam() {
     },
   ];
 
+  // Details section shared by both modes: add-mode renders it directly so
+  // no orphaned single tab strip hugs the sheet edge; edit-mode nests it
+  // in the Details tab next to Questions.
+  const detailsBlock = (
+    <>
+      <div className="flex items-baseline justify-between mb-4">
+        <h3 className="font-display font-bold">The basics</h3>
+        <span className="nb-data text-xs text-soft">form 01</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+        <div className="sm:col-span-2">
+          <Form.Item
+            label="Exam name"
+            name="name"
+            rules={[{ required: true, message: "Give the experiment a name" }]}
+          >
+            <input type="text" placeholder="e.g. JavaScript Basics" />
+          </Form.Item>
+        </div>
+        <div>
+          <Form.Item
+            label="Duration (minutes)"
+            name="duration"
+            rules={[{ required: true, message: "Set a duration" }]}
+          >
+            <input type="number" min={1} placeholder="e.g. 30" />
+          </Form.Item>
+        </div>
+        <div>
+          <Form.Item
+            label="Category"
+            name="category"
+            rules={[{ required: true, message: "Pick or create a category" }]}
+          >
+            <Select
+              showSearch
+              mode="tags"
+              maxCount={1}
+              size="large"
+              style={{ width: "100%" }}
+              placeholder="Select or create category"
+            >
+              {categories.map((cat) => (
+                <Select.Option key={cat} value={cat}>
+                  {cat}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </div>
+        <div>
+          <Form.Item
+            label="Total marks"
+            name="totalMarks"
+            rules={[{ required: true, message: "Set total marks" }]}
+          >
+            <input type="number" min={1} placeholder="e.g. 100" />
+          </Form.Item>
+        </div>
+        <div>
+          <Form.Item
+            label="Passing marks"
+            name="passingMarks"
+            rules={[{ required: true, message: "Set passing marks" }]}
+          >
+            <input type="number" min={0} placeholder="e.g. 40" />
+          </Form.Item>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-rule">
+        {!id && (
+          <button
+            className="nb-btn-ghost !py-2 text-sm"
+            type="button"
+            onClick={() => {
+              form
+                .validateFields()
+                .then((values) => {
+                  handleCreateExamWithAI(values); // ✅ call renamed function
+                })
+                .catch(() => {
+                  message.error("Please fill in all required fields");
+                });
+            }}
+          >
+            <i className="ri-sparkling-line mr-1" aria-hidden="true"></i>
+            Draft with AI
+          </button>
+        )}
+        <span className="flex-1" aria-hidden="true" />
+        <button
+          className="text-soft hover:text-accent font-semibold px-3 py-2 text-sm"
+          type="button"
+          onClick={() => navigate("/admin/exams")}
+        >
+          Cancel
+        </button>
+        <button
+          className="nb-btn !py-2 text-sm"
+          type="submit"
+        >
+          {id ? "File amendments" : "Save exam"}
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <div>
-      <PageTitle title={id ? "Edit Exam" : "Add Exam"} />
-      <div className="divider"></div>
+      <PageTitle
+        title={id ? "Amend experiment" : "File an experiment"}
+        sub={
+          id
+            ? "Correct the filed entries, then review its questions."
+            : "Describe the run first — questions can be filed by hand or drafted by AI."
+        }
+      />
       {(examData || !id) && (
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
           initialValues={examData}
-          className="mt-2"
+          className="nb-sheet p-6 sm:p-8"
         >
-          <Tabs defaultActiveKey="1">
-            <Tabs.TabPane tab="Exam Details" key="1">
-              <Row gutter={[10, 10]}>
-                <Col span={8}>
-                  <Form.Item label="Exam Name" name="name">
-                    <input type="text" />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label="Exam Duration" name="duration">
-                    <input type="number" min={0} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label="Category" name="category">
-                    <Select
-                      showSearch
-                      mode="tags"
-                      maxCount={1}
-                      size="large"
-                      style={{ width: "100%" }}
-                      placeholder="Select or create category"
-                    >
-                      {categories.map((cat) => (
-                        <Select.Option key={cat} value={cat}>
-                          {cat}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label="Total Marks" name="totalMarks">
-                    <input type="number" min={0} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label="Passing Marks" name="passingMarks">
-                    <input type="number" min={0} />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <div className="flex justify-end gap-2 mt-4">
-                {!id && (
+            {id ? (
+            <Tabs defaultActiveKey="1">
+              <Tabs.TabPane tab="Details" key="1">
+                {detailsBlock}
+              </Tabs.TabPane>
+              <Tabs.TabPane
+                tab={`Questions${examData?.questions ? ` (${examData.questions.length})` : ""}`}
+                key="2"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <p className="nb-data text-xs text-soft">
+                    {examData?.questions?.length || 0} entries filed
+                  </p>
                   <button
-                    className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear w-15 cursor-pointer"
-                    type="button"
-                    onClick={() => {
-                      form
-                        .validateFields()
-                        .then((values) => {
-                          handleCreateExamWithAI(values); // ✅ call renamed function
-                        })
-                        .catch(() => {
-                          message.error("Please fill in all required fields");
-                        });
-                    }}
-                  >
-                    Create With AI
-                  </button>
-                )}
-                <button
-                  className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear w-15 cursor-pointer"
-                  type="submit"
-                >
-                  {id ? "Update" : "Save"}
-                </button>
-                <button
-                  className="primary-contained-btn dark:bg-black dark:border-black  dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md  w-15 cursor-pointer"
-                  type="button"
-                  onClick={() => navigate("/admin/exams")}
-                >
-                  Cancel
-                </button>
-              </div>
-            </Tabs.TabPane>
-            {id && (
-              <Tabs.TabPane tab="Questions" key="2">
-                <div className="flex justify-end">
-                  <button
-                    className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear cursor-pointer"
+                    className="nb-btn !py-2 text-sm"
                     type="button"
                     onClick={() => {
                       setShowAddEditQuestionModal(true);
                     }}
                   >
-                    Add Question
+                    <i className="ri-add-line mr-1" aria-hidden="true"></i>
+                    File a question
                   </button>
                 </div>
                 <Table
                   columns={questionColumns}
                   dataSource={examData?.questions}
-                  className="mt-1  min-w-[700px] "
+                  className="min-w-[700px]"
                   rowKey="_id" // ✅ added to prevent React key warning
                 ></Table>
               </Tabs.TabPane>
-            )}
-          </Tabs>
+            </Tabs>
+          ) : (
+            detailsBlock
+          )}
         </Form>
       )}
       {showAddEditQuestionModal && (

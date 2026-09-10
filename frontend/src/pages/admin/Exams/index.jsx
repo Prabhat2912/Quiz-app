@@ -92,7 +92,7 @@ function ExamsPage() {
       <div className="flex justify-between mt-1">
         <PageTitle title="Exams" />
         <button
-          className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear flex items-center cursor-pointer"
+          className="primary-outlined-btn flex items-center cursor-pointer"
           onClick={() => navigate("/admin/exams/add")}
         >
           <i className="ri-add-line"></i>

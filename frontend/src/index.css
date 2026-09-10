@@ -1,21 +1,471 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-* {
-  font-family: "Montserrat", sans-serif;
+
+/* Lab-notebook world tokens. body.dark flips the bench. */
+:root {
+  --paper: #f4f5f1;
+  --sheet: #fcfcf9;
+  --ink: #17211b;
+  --soft: #5f6e64;
+  --rule: #dfe4dc;
+  --accent: #0b6b4f;
+  --accent-deep: #084f3a;
+  --pass: #0b6b4f;
+  --fail: #b3352b;
+  --grid-line: rgba(23, 33, 27, 0.055);
+  --shadow: 23, 28, 25;
+}
+
+body.dark {
+  --paper: #0d1310;
+  --sheet: #141c17;
+  --ink: #e9eee9;
+  --soft: #9aa79e;
+  --rule: #27332c;
+  --accent: #34d399;
+  --accent-deep: #6ee7b7;
+  --pass: #34d399;
+  --fail: #e07a63;
+  --grid-line: rgba(233, 238, 233, 0.06);
+  --shadow: 0, 0, 0;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, .font-display {
+  font-family: "Archivo", system-ui, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+/* Ant Design's reboot sets headings near-black after our CSS loads;
+   re-assert ink with higher specificity so dark mode stays readable. */
+body h1, body h2, body h3, body h4, body h5, body h6 {
+  color: var(--ink);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+/* Tabular measurement numerals for every XP / score / streak reading */
+.nb-data {
+  font-family: "Spline Sans Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ruled paper ground */
+.nb-page {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Sheet surface with honest offset depth */
+.nb-sheet {
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(var(--shadow), 0.5), 0 12px 28px -18px rgba(var(--shadow), 0.55);
+}
+
+/* Ruled log row */
+.nb-row {
+  border-bottom: 1px solid var(--rule);
+}
+.nb-row:last-child {
+  border-bottom: 0;
+}
+
+/* Copper verb buttons */
+.nb-btn {
+  background: var(--accent);
+  color: #ffffff;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+body.dark .nb-btn {
+  color: #06231a;
+}
+.nb-btn:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+.nb-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.nb-btn-ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.nb-btn-ghost:hover {
+  background: rgba(11, 107, 79, 0.1);
+}
+body.dark .nb-btn-ghost:hover {
+  background: rgba(52, 211, 153, 0.14);
+}
+
+/* Rubber-stamp verdict chips */
+.nb-stamp {
+  display: inline-block;
+  font-family: "Archivo", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  transform: rotate(-2deg);
+}
+.nb-stamp-pass {
+  color: var(--pass);
+}
+.nb-stamp-fail {
+  color: var(--fail);
+}
+
+/* Category label chip */
+.nb-chip {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--soft);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: transparent;
+}
+
+/* Specimen label for badges */
+.nb-specimen {
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: 0 8px 18px -14px rgba(var(--shadow), 0.6);
+}
+.nb-specimen-locked {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+/* Ruled progress bar */
+.nb-meter {
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.nb-meter > div {
+  background: var(--accent);
+  border-radius: 999px;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--fill, 0));
+  transform-origin: left center;
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Browser surfaces carry the world */
+::selection {
+  background: var(--accent);
+  color: #ffffff;
+}
+body.dark ::selection {
+  color: #06231a;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 8px;
+  border: 2px solid var(--paper);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+input, textarea, select {
+  caret-color: var(--accent);
+}
+
+/* Soft tints for selected / correct / wrong states */
+.nb-tint-accent {
+  background: rgba(11, 107, 79, 0.09);
+}
+body.dark .nb-tint-accent {
+  background: rgba(52, 211, 153, 0.13);
+}
+.nb-tint-pass {
+  background: rgba(46, 125, 67, 0.1);
+}
+body.dark .nb-tint-pass {
+  background: rgba(123, 207, 146, 0.13);
+}
+.nb-tint-fail {
+  background: rgba(179, 53, 43, 0.09);
+}
+body.dark .nb-tint-fail {
+  background: rgba(224, 122, 99, 0.13);
+}
+.nb-hover-tint:hover {
+  background: rgba(11, 107, 79, 0.09);
+}
+body.dark .nb-hover-tint:hover {
+  background: rgba(52, 211, 153, 0.13);
+}
+
+/* Sliding auth cover: transform-only glide + face cross-fade */
+.nb-auth-overlay {
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.nb-auth-face {
+  transition: opacity 300ms ease;
+}
+.nb-btn-inverse {
+  background: transparent;
+  color: inherit;
+  border: 1.5px solid currentColor;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.nb-btn-inverse:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+body.dark .nb-btn-inverse:hover {
+  background: rgba(6, 35, 26, 0.16);
+}
+
+/* Rubber-stamp landing for quiz results */
+@keyframes nb-stamp-land {
+  0% {
+    transform: scale(1.6) rotate(-10deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(-2deg);
+    opacity: 1;
+  }
+}
+.nb-stamp-land {
+  animation: nb-stamp-land 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-stamp-land {
+    animation: none;
+  }
+  .nb-auth-overlay,
+  .nb-auth-face {
+    transition: none;
+  }
+  .nb-meter > div {
+    transition: none;
+  }
+}
+
+/* Toasts speak the same language: sheet surface, ink text, verdict icons */
+.ant-message-notice-content {
+  background: var(--sheet) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--rule);
+  border-radius: 10px !important;
+  box-shadow: 0 1px 0 rgba(var(--shadow), 0.5), 0 12px 28px -18px rgba(var(--shadow), 0.55) !important;
+  padding: 10px 16px !important;
+  font-size: 14px;
+}
+.ant-message-success .anticon {
+  color: var(--pass) !important;
+}
+.ant-message-error .anticon {
+  color: var(--fail) !important;
+}
+.ant-message-info .anticon,
+.ant-message-loading .anticon {
+  color: var(--accent) !important;
+}
+.ant-message-warning .anticon {
+  color: var(--warning, #9a6b0f) !important;
+}
+
+/* Ant Design v4 alignment to the world */
+.ant-table {
+  background: var(--sheet) !important;
+  color: var(--ink) !important;
+}
+.ant-table-thead > tr > th {
+  background: transparent !important;
+  color: var(--soft) !important;
+  font-family: "Archivo", system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--rule) !important;
+}
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--rule) !important;
+}
+.ant-table-tbody > tr:hover > td {
+  background: rgba(11, 107, 79, 0.06) !important;
+}
+body.dark .ant-table-tbody > tr:hover > td {
+  background: rgba(52, 211, 153, 0.08) !important;
+}
+.ant-modal-content {
+  background: var(--sheet) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--rule);
+  border-radius: 12px !important;
+}
+.ant-modal-header {
+  background: var(--sheet) !important;
+  border-bottom: 1px solid var(--rule) !important;
+}
+.ant-modal-title {
+  color: var(--ink) !important;
+  font-family: "Archivo", system-ui, sans-serif !important;
+}
+.ant-modal-close-x {
+  color: var(--soft) !important;
+}
+.ant-tabs-tab {
+  color: var(--soft) !important;
+}
+.ant-tabs-tab:hover {
+  color: var(--ink) !important;
+}
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--accent) !important;
+}
+.ant-tabs-ink-bar {
+  background: var(--accent) !important;
+}
+.ant-form-item-label > label {
+  color: var(--ink) !important;
+}
+/* Required marks speak accent, not alarm red */
+.ant-form-item-label > label.ant-form-item-required::before {
+  color: var(--accent) !important;
+}
+/* Single-pane forms (e.g. filing a new exam) have no tabs to switch
+   between, so the orphaned tab bar is hidden; edit mode keeps both. */
+.ant-tabs-nav:has(.ant-tabs-tab:only-child) {
+  display: none;
+}
+.ant-empty-description {
+  color: var(--soft) !important;
+}
+.ant-pagination-item a {
+  color: var(--ink) !important;
+}
+.ant-pagination-item-active {
+  border-color: var(--accent) !important;
+}
+.ant-pagination-item-active a {
+  color: var(--accent) !important;
+}
+/* Ant Design form controls that ignore color-scheme otherwise */
+.ant-radio-wrapper,
+.ant-checkbox-wrapper {
+  color: var(--ink) !important;
+}
+.ant-radio-inner {
+  background: var(--sheet) !important;
+  border-color: var(--rule) !important;
+}
+.ant-radio-checked .ant-radio-inner {
+  border-color: var(--accent) !important;
+}
+.ant-radio-checked .ant-radio-inner::after {
+  background: var(--accent) !important;
+}
+.ant-checkbox-inner {
+  background: var(--sheet) !important;
+  border-color: var(--rule) !important;
+}
+.ant-checkbox-checked .ant-checkbox-inner {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+.ant-switch {
+  background: var(--rule);
+}
+.ant-switch-checked {
+  background: var(--accent) !important;
+}
+.ant-select:not(.ant-select-disabled) .ant-select-selector {
+  background: var(--sheet) !important;
+  color: var(--ink) !important;
+  border-color: var(--rule) !important;
+}
+.ant-select-single.ant-select-lg .ant-select-selector {
+  height: 42px !important;
+}
+.ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-item,
+.ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-placeholder {
+  line-height: 40px !important;
+}
+.ant-select-arrow {
+  color: var(--soft) !important;
+}
+.ant-select-dropdown {
+  background: var(--sheet) !important;
+  border: 1px solid var(--rule);
+}
+.ant-select-item {
+  color: var(--ink) !important;
+}
+.ant-select-item-option-active {
+  background: rgba(11, 107, 79, 0.08) !important;
+}
+body.dark .ant-select-item-option-active {
+  background: rgba(52, 211, 153, 0.12) !important;
+}
+.ant-select-item-option-selected {
+  color: var(--accent) !important;
+  font-weight: 700;
+}
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  background: transparent !important;
+  color: var(--ink) !important;
+  border-color: var(--rule) !important;
+}
+.ant-pagination-jump-prev .ant-pagination-item-ellipsis,
+.ant-pagination-jump-next .ant-pagination-item-ellipsis {
+  color: var(--soft) !important;
 }

@@ -173,7 +173,7 @@ function AddEditQuestion(props) {
               <span>Explanation (Optional - shown for wrong answers)</span>
               <button
                 type="button"
-                className="text-sm bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded ml-2"
+                className="nb-btn !py-1.5 !px-3 !text-sm ml-2"
                 onClick={handleGenerateExplanation}
                 disabled={generatingExplanation}
               >
@@ -239,13 +239,13 @@ function AddEditQuestion(props) {
 
         <div className="flex justify-end gap-2 mt-2">
           <button
-            className="primary-contained-btn dark:bg-black dark:border-black  dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md cursor-pointer"
+            className="primary-contained-btn rounded-md cursor-pointer"
             type="submit"
           >
             Save
           </button>
           <button
-            className="primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear "
+            className="primary-outlined-btn"
             type="button"
             onClick={() => {
               setShowAddEditQuestionModal(false);

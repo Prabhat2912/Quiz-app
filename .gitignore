@@ -26,3 +26,22 @@ Quiz-App-Postman-Collection.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# AI coding assistants — local-only skills, hooks, caches and briefs
+.opencode/
+.impeccable*
+.opencode-brief.md
+.impeccable-brief.md
+.cursor/
+.cursorignore
+.windsurf/
+.codex/
+.claude/
+.claude.json
+copilot/
+.ai/
+.aider*
+continue/
+.codeium/
+.tabnine/
+*.code-workspace

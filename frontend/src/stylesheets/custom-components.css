@@ -1,20 +1,26 @@
 .card {
-  box-shadow: 0 0 1px gray;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(28, 24, 16, 0.5), 0 12px 28px -18px rgba(28, 24, 16, 0.55);
 }
 
 .card-lg {
-  box-shadow: 0 0 2px rgb(72, 72, 72);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(28, 24, 16, 0.5), 0 12px 28px -18px rgba(28, 24, 16, 0.55);
 }
 
 .divider {
-  border-bottom: 1px solid gray;
+  border-bottom: 1px solid var(--rule);
 }
 
 .loader-parent {
   position: absolute;
   inset: 0;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.638);
+  background-color: rgba(22, 20, 15, 0.55);
   z-index: 10000;
   display: flex;
   justify-content: center;
@@ -22,12 +28,12 @@
 }
 
 .loader {
-  height: 80px;
-  width: 80px;
-  border: 5px solid #fff;
-  border-left-color: transparent;
+  height: 56px;
+  width: 56px;
+  border: 3px solid var(--rule);
+  border-top-color: var(--accent);
   border-radius: 50%;
-  animation: loader 1s linear infinite;
+  animation: loader 0.9s linear infinite;
 }
 
 @keyframes loader {
@@ -40,22 +46,25 @@
 }
 
 .option {
-  box-shadow: rgba(0, 0, 0, 0.638) 0px 0px 1.5px;
-  padding: 10px;
-  border-radius: 2px;
+  border: 1px solid var(--rule);
+  background: var(--sheet);
+  padding: 12px 14px;
+  border-radius: 8px;
 }
 
 .selected-option {
-  box-shadow: rgba(0, 0, 0, 0.638) 0px 0px 5px;
-  padding: 10px;
-  border-radius: 2px;
+  border: 1px solid var(--accent);
+  background: var(--sheet);
+  padding: 12px 14px;
+  border-radius: 8px;
 }
 
 .result {
-  background-color: #ede9df;
+  background-color: var(--sheet);
+  border: 1px solid var(--rule);
   padding: 20px;
-  color: white !important;
-  border-radius: 5px;
+  color: var(--ink) !important;
+  border-radius: 10px;
 }
 
 .lottie-animation {
@@ -63,12 +72,16 @@
 }
 
 .timer {
-  background-color: #894114;
-  color: white !important;
+  background-color: var(--sheet);
+  border: 1px solid var(--accent);
+  color: var(--accent) !important;
   padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 80px;
   width: 80px;
+  border-radius: 10px;
+  font-family: "Spline Sans Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
 }

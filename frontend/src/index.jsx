@@ -1,9 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+// Ant Design first: our tokens and Tailwind utilities must win every
+// equal-specificity tie (e.g. antd's `.ant-form{padding:0}` vs `p-6`).
+import "antd/dist/antd.min.css";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import "antd/dist/antd.min.css";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import { registerSW } from "virtual:pwa-register";

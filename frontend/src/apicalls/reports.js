@@ -50,3 +50,42 @@ export const getUserProgress = async () => {
         return error.response.data
     }
 }
+
+export const getUserProgressById = async (userId) => {
+    try {
+        const response = await axiosInstance.get(`/api/reports/admin/user-progress/${userId}`)
+        return response.data
+    }
+    catch (error) {
+        return error.response.data
+    }
+}
+export const getLeaderboard = async (limit = 50) => {
+    try {
+        const response = await axiosInstance.get(`/api/reports/leaderboard?limit=${limit}`)
+        return response.data
+    }
+    catch (error) {
+        return error.response.data
+    }
+}
+
+export const getBadgeCatalog = async () => {
+    try {
+        const response = await axiosInstance.get('/api/reports/badges')
+        return response.data
+    }
+    catch (error) {
+        return error.response.data
+    }
+}
+
+export const getXPHistory = async (limit = 20) => {
+    try {
+        const response = await axiosInstance.get(`/api/reports/xp-history?limit=${limit}`)
+        return response.data
+    }
+    catch (error) {
+        return error.response.data
+    }
+}

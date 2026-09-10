@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
 import ThemeBtn from "./ThemeBtn";
+import LevelProgressCard from "./gamification/LevelProgressCard";
 import "remixicon/fonts/remixicon.css";
 
 function ProtectedRoute({ children }) {
@@ -25,9 +26,9 @@ function ProtectedRoute({ children }) {
         onClick: () => navigate("/"),
       },
       {
-        title: "Progress",
+        title: "Logbook",
         paths: ["/user/progress"],
-        icon: <i className="ri-line-chart-line"></i>,
+        icon: <i className="ri-book-open-line"></i>,
         onClick: () => navigate("/user/progress"),
       },
       {
@@ -35,6 +36,12 @@ function ProtectedRoute({ children }) {
         paths: ["/user/reports"],
         icon: <i className="ri-bar-chart-line"></i>,
         onClick: () => navigate("/user/reports"),
+      },
+      {
+        title: "Leaderboard",
+        paths: ["/leaderboard"],
+        icon: <i className="ri-trophy-line"></i>,
+        onClick: () => navigate("/leaderboard"),
       },
       {
         title: "Logout",
@@ -70,6 +77,12 @@ function ProtectedRoute({ children }) {
         onClick: () => navigate("/admin/reports"),
       },
       {
+        title: "Logbook",
+        paths: ["/user/progress"],
+        icon: <i className="ri-book-open-line"></i>,
+        onClick: () => navigate("/user/progress"),
+      },
+      {
         title: "Leaderboard",
         paths: ["/leaderboard"],
         icon: <i className="ri-trophy-line"></i>,
@@ -94,11 +107,6 @@ function ProtectedRoute({ children }) {
       dispatch(HideLoading());
 
       if (response.success) {
-        console.log("User data received:", response.data); // Debug log
-        console.log("User XP:", response.data.xp);
-        console.log("User Level:", response.data.level);
-        console.log("User Badges:", response.data.badges);
-        message.success(response.message);
         dispatch(SetUser(response.data));
         if (response.data.isAdmin) {
           setMenu(adminMenu);
@@ -151,112 +159,132 @@ function ProtectedRoute({ children }) {
     }
   };
 
-  // Debug logging
-  if (user) {
-    console.log("Rendering with user:", user);
-    console.log("User level:", user.level);
-    console.log("User xp:", user.xp);
-    console.log("Is admin?", user.isAdmin);
-  }
-
   return (
     user && (
-      <div className="  h-[100vh] min-w-[340px] overflow-hidden ">
-        <div className="flex h-[100%]  ">
-          <div
-            className={` ${
-              collapsed ? "w-20" : "w-64"
-            } mt-[55px] bg-[#0F3460] z-[10000] dark:bg-black overflow-hidden transition-all duration-200 ease-linear   p-2.5  text-white h-[100vh]   flex flex-col items-center justify-start`}
+      <div className="h-screen min-w-[340px] overflow-hidden bg-paper text-ink">
+        <div className="flex h-full">
+          <nav
+            aria-label="Primary"
+            className={`${
+              collapsed ? "w-[76px]" : "w-60"
+            } mt-14 shrink-0 z-10 overflow-hidden transition-all duration-200 ease-linear p-3 h-[calc(100vh-56px)] flex flex-col items-stretch bg-sheet border-r border-rule`}
           >
-            <div
-              className={` ${
-                collapsed ? "justify-center" : "justify-end"
-              } cursor-pointer items-end w-full flex  `}
+            <button
+              className="cursor-pointer flex items-center text-soft hover:text-accent self-end p-1"
+              onClick={() => setCollapsed((c) => !c)}
+              aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+              aria-expanded={!collapsed}
             >
-              {!collapsed && (
-                <i
-                  className="ri-close-line text-2xl flex items-center"
-                  onClick={() => setCollapsed(true)}
-                ></i>
-              )}
-              {collapsed && (
-                <i
-                  className="ri-menu-2-line text-2xl flex items-center"
-                  onClick={() => setCollapsed(false)}
-                ></i>
-              )}
-            </div>
-            <div className="flex justify-center  flex-col gap-1  mt-8">
+              <i
+                className={`${
+                  collapsed ? "ri-menu-2-line" : "ri-close-line"
+                } text-xl`}
+              ></i>
+            </button>
+            <div className="flex flex-col gap-1 mt-6">
               {menu.map((item, index) => {
+                const active = getIsActiveOrNot(item.paths);
                 return (
-                  <div
-                    className={`flex items-center p-2 justify-center gap-4 m-1  cursor-pointer transition-all duration-50 ease-in-out ${
-                      getIsActiveOrNot(item.paths) &&
-                      "px-4 py-3 border-2 border-white  rounded-md"
-                    }`}
+                  <button
                     key={index}
                     onClick={item.onClick}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors duration-150 text-left ${
+                      collapsed ? "justify-center" : ""
+                    } ${
+                      active
+                        ? "bg-accent text-white dark:text-[#06231a] font-semibold"
+                        : "text-soft hover:text-accent nb-hover-tint"
+                    }`}
                   >
-                    {item.icon}
+                    <span className="text-lg leading-none">{item.icon}</span>
                     {!collapsed && (
-                      <div className="  min-w-20 ">{item.title}</div>
+                      <span className="text-sm">
+                        <span className="nb-data opacity-60 mr-2">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        {item.title}
+                      </span>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
-          </div>
-          <div className="w-full overflow-y-scroll">
-            <div className=" w-full fixed top-0 px-4  z-[10000] right-0 p-1.5 text-white bg-[#0F3460] transition-all duration-200 ease-linear dark:bg-black flex justify-between items-center">
-              <h1 className="text-2xl text-white flex items-center">
-                Quiz App
-              </h1>
+            {!collapsed && user && (
+              <div className="mt-auto pt-4">
+                <div className="divider mb-3"></div>
+                <div className="px-1">
+                  <LevelProgressCard
+                    xp={user.xp || 0}
+                    level={user.level || 1}
+                    compact
+                  />
+                </div>
+              </div>
+            )}
+          </nav>
+          <div className="flex-1 min-w-0 overflow-y-auto">
+            <header className="w-full fixed top-0 right-0 z-10 h-14 px-4 bg-sheet border-b border-rule flex justify-between items-center gap-3">
+              <button
+                className="flex items-baseline gap-2 cursor-pointer"
+                onClick={() => navigate("/")}
+                aria-label="Quiz App home"
+              >
+                <span className="font-display font-extrabold text-lg tracking-tight">
+                  Quiz App
+                </span>
+                <span className="nb-data hidden sm:inline text-xs text-soft">
+                  lab notebook ·{" "}
+                  {user?.isAdmin ? "author bench" : "experiment log"}
+                </span>
+              </button>
 
-              {/* XP and Level Display - Show for all users */}
-              {user && (user.level !== undefined || user.xp !== undefined) ? (
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col items-center">
-                    <span className="text-xs opacity-80">Level</span>
-                    <span className="text-lg font-bold">{user.level || 1}</span>
-                  </div>
-                  <div className="flex flex-col min-w-[120px]">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>{user.xp || 0} XP</span>
+              <div className="flex items-center gap-3">
+                {!user?.isAdmin &&
+                  (user.level !== undefined || user.xp !== undefined) && (
+                    <div className="hidden md:flex items-center gap-2">
+                      <span className="nb-data text-sm font-semibold">
+                        Lv {user.level || 1}
+                      </span>
+                      <span className="nb-data text-xs text-soft">
+                        {(user.xp || 0).toLocaleString()} XP
+                      </span>
                       {user.badges && user.badges.length > 0 && (
-                        <span>🏅 {user.badges.length}</span>
+                        <span
+                          className="nb-data text-xs font-semibold text-accent"
+                          title="Badges earned"
+                        >
+                          ⬢ {user.badges.length}
+                        </span>
                       )}
                     </div>
-                    <div className="bg-gray-600 rounded-full h-2 overflow-hidden">
-                      <div
-                        className="bg-yellow-400 h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${Math.min(
-                            (((user.xp || 0) % 100) / 100) * 100,
-                            100
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              <div>
-                <div className="flex justify-center items-center gap-1">
-                  <i className="ri-user-line"></i>
-                  {user?.name}
-                </div>
-                <span className="text-sm opacity-80">
-                  Role : {user?.isAdmin ? "Admin" : "User"}
-                </span>
-              </div>
-              <div className="flex justify-center items-center">
+                  )}
+                <button
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => navigate("/profile")}
+                  aria-label="Open profile"
+                >
+                  <span
+                    className="w-8 h-8 rounded-full bg-accent text-white dark:text-[#06231a] flex items-center justify-center font-display font-bold text-sm"
+                    aria-hidden="true"
+                  >
+                    {user?.name?.[0]?.toUpperCase()}
+                  </span>
+                  <span className="hidden sm:block text-left leading-tight">
+                    <span className="block text-sm font-semibold">
+                      {user?.name}
+                    </span>
+                    <span className="block text-xs text-soft">
+                      {user?.isAdmin ? "Admin" : "Learner"}
+                    </span>
+                  </span>
+                </button>
                 <ThemeBtn />
               </div>
-            </div>
-            <div className=" overflow-y-scroll p-4 mt-8 bg-gray-200 min-h-full ">
-              {children}
-            </div>
+            </header>
+            <main className="nb-page p-4 sm:p-6 mt-14 min-h-[calc(100vh-56px)]">
+              <div className="max-w-6xl mx-auto">{children}</div>
+            </main>
           </div>
         </div>
       </div>

@@ -7,8 +7,7 @@ import "./stylesheets/custom-components.css";
 import "./stylesheets/form-elements.css";
 import "./stylesheets/layout.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginPage from "./pages/common/Login";
-import RegisterPage from "./pages/common/Register";
+import AuthPage from "./pages/common/Auth";
 import HomePage from "./pages/common/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -22,8 +21,12 @@ import { useSelector } from "react-redux";
 import WriteExam from "./pages/user/WriteExam";
 import AdminReportsPage from "./pages/admin/Reports";
 import Leaderboard from "./pages/admin/Leaderboard";
+import UserInspectionPage from "./pages/admin/UserProfile";
+import LandingPage from "./pages/common/Landing";
 import NotFoundPage from "./pages/common/NotFoundPage";
 import InstallPWA from "./components/InstallPWA";
+
+const hasToken = () => !!localStorage.getItem("token");
 
 function App() {
   const { loading } = useSelector((state) => state.loaders);
@@ -37,7 +40,7 @@ function App() {
             path="/login"
             element={
               <PublicRoute>
-                <LoginPage />
+                <AuthPage />
               </PublicRoute>
             }
           />
@@ -45,16 +48,20 @@ function App() {
             path="/register"
             element={
               <PublicRoute>
-                <RegisterPage />
+                <AuthPage />
               </PublicRoute>
             }
           />
           <Route
             path="/"
             element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
+              hasToken() ? (
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              ) : (
+                <LandingPage />
+              )
             }
           />
           <Route
@@ -126,6 +133,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Leaderboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:userId"
+            element={
+              <ProtectedRoute>
+                <UserInspectionPage />
               </ProtectedRoute>
             }
           />

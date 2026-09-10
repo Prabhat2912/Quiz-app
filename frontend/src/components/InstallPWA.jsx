@@ -68,7 +68,7 @@ function InstallPWA() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 z-50 border border-gray-200 dark:border-gray-700">
+    <div className="nb-sheet fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 p-4 z-50">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center">
           <img
@@ -77,17 +77,17 @@ function InstallPWA() {
             className="w-12 h-12 mr-3 rounded-lg"
           />
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">
+            <h3 className="font-display font-bold">
               Install Quiz App
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-soft">
               Add to your home screen for quick access
             </p>
           </div>
         </div>
         <button
           onClick={handleDismiss}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          className="text-soft hover:text-accent"
           aria-label="Dismiss"
         >
           <i className="ri-close-line text-xl"></i>
@@ -96,14 +96,14 @@ function InstallPWA() {
       <div className="flex gap-2">
         <button
           onClick={handleInstallClick}
-          className="flex-1 primary-contained-btn dark:bg-black dark:border-black dark:hover:text-black dark:hover:border-black transition-all duration-200 ease-linear rounded-md"
+          className="flex-1 nb-btn"
         >
           <i className="ri-download-line mr-1"></i>
           Install
         </button>
         <button
           onClick={handleDismiss}
-          className="flex-1 primary-outlined-btn dark:hover:bg-black dark:text-black dark:border-black transition-all duration-200 ease-linear"
+          className="flex-1 nb-btn-ghost"
         >
           Not Now
         </button>
