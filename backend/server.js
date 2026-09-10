@@ -34,10 +34,12 @@ app.use((err, req, res, next) => {
 })
 
 app.get('/api/status', (req, res) => {
-    res.send({ message: "Server is running!" });
+    res.send({ message: "Server is running!", version: "2026-otp-1", features: ["otp-auth", "leaderboard", "badges", "user-inspection"] });
 });
 
 app.listen(port, (req, res) => {
     // res.send({ message: "Server is running" })
     console.log(`Server is running on PORT: ${port}`)
+    const { verifyMailTransport } = require("./utils/mailer")
+    verifyMailTransport()
 })

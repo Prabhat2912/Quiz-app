@@ -1,6 +1,6 @@
-const Exam = require("../models/examModel")
-const User = require("../models/userModel")
-const Question = require('../models/questionModel')
+const Exam = require("./examModel")
+const User = require("./userModel")
+const Question = require('./questionModel')
 const mongoose = require('mongoose');
 const addExam = async (req, res) => {
   try {

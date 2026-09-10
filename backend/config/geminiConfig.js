@@ -1,15 +1,15 @@
 const { GoogleGenAI } = require("@google/genai");
 
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not defined");
-}
-const ai = new GoogleGenAI({
-    apiKey: apiKey,
-})
-
 const chat = async (prompt) => {
     try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            throw new Error("GEMINI_API_KEY is not defined");
+        }
+        
+        const ai = new GoogleGenAI({
+            apiKey: apiKey,
+        })
 
         const response = await ai.models.generateContent({
             model: "gemini-2.0-flash-lite",

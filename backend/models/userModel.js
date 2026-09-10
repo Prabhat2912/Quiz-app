@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: false
     },
+    // Email ownership. Pre-gamification accounts have no field (undefined)
+    // and are treated as verified; new registrations start unverified.
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     // Gamification features
     xp: {
         type: Number,
@@ -36,7 +42,13 @@ const userSchema = new mongoose.Schema({
             default: Date.now
         },
         description: String,
-        icon: String
+        icon: String,
+        level: Number,
+        type: {
+            type: String,
+            enum: ['level', 'quizzes', 'accuracy', 'streak', 'special'],
+            default: undefined
+        }
     }],
     stats: {
         totalQuizzesCompleted: {
@@ -48,6 +60,14 @@ const userSchema = new mongoose.Schema({
             default: 0
         },
         totalQuestionsAttempted: {
+            type: Number,
+            default: 0
+        },
+        perfectScores: {
+            type: Number,
+            default: 0
+        },
+        passedQuizzes: {
             type: Number,
             default: 0
         },
