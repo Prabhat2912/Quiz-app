@@ -84,11 +84,13 @@ function ReportsPage() {
     <div className="w-full">
       <PageTitle title="Reports" />
       <div className="divider"></div>
-      <Table
-        columns={columns}
-        className="mt-2 min-w-[700px] "
-        dataSource={reportsData}
-      />
+      <div className="overflow-x-auto">
+        <Table
+          columns={columns}
+          className="mt-2 min-w-[700px] "
+          dataSource={reportsData}
+        />
+      </div>
     </div>
   );
 }

@@ -112,8 +112,8 @@ function HomePage() {
                   <span className="nb-data text-xs text-soft w-14 shrink-0">
                     EXP-{String(index + 1).padStart(2, "0")}
                   </span>
-                  <div className="flex-1 min-w-[180px]">
-                    <p className="font-display font-bold">{exam.name}</p>
+                  <div className="min-w-full sm:min-w-0 sm:flex-1">
+                    <p className="font-display font-bold break-words">{exam.name}</p>
                     <p className="mt-1">
                       <span className="nb-chip">{exam.category}</span>
                     </p>

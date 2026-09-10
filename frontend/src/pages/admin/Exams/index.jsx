@@ -100,12 +100,14 @@ function ExamsPage() {
         </button>
       </div>
       <div className="divider mt-1"></div>
-      <Table
-        className="min-w-[520px]"
-        columns={columns}
-        dataSource={exams}
-        locale={{ emptyText: "No exams available 😔" }}
-      />
+      <div className="overflow-x-auto">
+        <Table
+          className="min-w-[520px]"
+          columns={columns}
+          dataSource={exams}
+          locale={{ emptyText: "No exams available 😔" }}
+        />
+      </div>
     </>
   );
 }

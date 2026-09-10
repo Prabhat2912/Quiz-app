@@ -137,7 +137,6 @@ function AddEditQuestion(props) {
 
   return (
     <Modal
-      className="min-w-[400px]"
       title={selectedQuestion ? "Edit Question" : "Add Question"}
       open={showAddEditQuestionModal}
       footer={false}

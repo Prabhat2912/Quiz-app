@@ -339,12 +339,14 @@ function AddEditExam() {
                           File a question
                         </button>
                       </div>
-                      <Table
-                        columns={questionColumns}
-                        dataSource={examData?.questions}
-                        className="min-w-[700px]"
-                        rowKey="_id" // ✅ added to prevent React key warning
-                      ></Table>
+                <div className="overflow-x-auto">
+                  <Table
+                    columns={questionColumns}
+                    dataSource={examData?.questions}
+                    className="min-w-[700px]"
+                    rowKey="_id" // ✅ added to prevent React key warning
+                  ></Table>
+                </div>
                     </>
                   ),
                 },

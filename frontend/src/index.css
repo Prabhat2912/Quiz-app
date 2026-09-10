@@ -4,20 +4,29 @@
 /* Class-driven dark theme (Tailwind v4 needs this declared). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Design tokens as utilities: bg-paper, text-ink, border-rule,
-   bg-accent, font-display, font-data, ... */
-@theme {
-  --color-paper: var(--paper);
-  --color-sheet: var(--sheet);
-  --color-ink: var(--ink);
-  --color-soft: var(--soft);
-  --color-rule: var(--rule);
-  --color-accent: var(--accent);
-  --color-accentdeep: var(--accent-deep);
-  --color-pass: var(--pass);
-  --color-fail: var(--fail);
-  --font-display: "Archivo", system-ui, sans-serif;
-  --font-data: "Spline Sans Mono", ui-monospace, monospace;
+/* Live token classes. These are plain CSS on purpose: aliasing runtime
+   vars through `@theme --color-*: var(--*)` lets the build freeze them
+   to light values, which half-breaks dark mode. Plain classes always
+   resolve vars at runtime, so both themes flip. */
+.bg-paper { background-color: var(--paper); }
+.bg-sheet { background-color: var(--sheet); }
+.bg-accent { background-color: var(--accent); }
+.bg-rule { background-color: var(--rule); }
+.text-ink { color: var(--ink); }
+.text-soft { color: var(--soft); }
+.text-accent { color: var(--accent); }
+.text-pass { color: var(--pass); }
+.text-fail { color: var(--fail); }
+.border-rule { border-color: var(--rule); }
+.border-accent\! { border-color: var(--accent) !important; }
+.border-pass\! { border-color: var(--pass) !important; }
+.border-fail\! { border-color: var(--fail) !important; }
+.font-display {
+  font-family: "Archivo", system-ui, sans-serif;
+  letter-spacing: -0.015em;
+}
+.font-data {
+  font-family: "Spline Sans Mono", ui-monospace, monospace;
 }
 
 /* v4 changed bare buttons to cursor:default — the app speaks pointer. */

@@ -161,7 +161,7 @@ function ProtectedRoute({ children }) {
 
   return (
     user && (
-      <div className="h-screen min-w-[340px] overflow-hidden bg-paper text-ink">
+      <div className="h-screen overflow-hidden bg-paper text-ink">
         <div className="flex h-full">
           <nav
             aria-label="Primary"
@@ -224,7 +224,7 @@ function ProtectedRoute({ children }) {
             )}
           </nav>
           <div className="flex-1 min-w-0 overflow-y-auto">
-            <header className="w-full fixed top-0 right-0 z-10 h-14 px-4 bg-sheet border-b border-rule flex justify-between items-center gap-3">
+            <header className="w-full fixed top-0 right-0 z-10 h-14 px-3 sm:px-4 bg-sheet border-b border-rule flex justify-between items-center gap-2 sm:gap-3">
               <button
                 className="flex items-baseline gap-2 cursor-pointer"
                 onClick={() => navigate("/")}

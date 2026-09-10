@@ -219,7 +219,7 @@ function WriteExam() {
             </div>
 
             <div className="flex flex-wrap justify-between items-start gap-2">
-              <h2 className="font-display font-bold text-lg sm:text-xl flex flex-wrap items-center gap-2">
+              <h2 className="font-display font-bold text-lg sm:text-xl flex flex-wrap items-center gap-2 min-w-0 break-words">
                 <span className="nb-data text-sm text-soft font-medium">
                   Q{selectedQuestionIndex + 1}
                 </span>

@@ -83,18 +83,18 @@ function AdminReportsPage() {
     <div>
       <PageTitle title="Reports" />
       <div className="divider"></div>
-      <div className="flex gap-2 mt-2">
+      <div className="flex flex-wrap gap-2 mt-2">
         <input
           type="text"
           placeholder="Exam"
-          className="min-w-[90px]"
+          className="min-w-[90px] flex-1 sm:flex-none sm:w-40"
           value={filters.examName}
           onChange={(e) => setFilters({ ...filters, examName: e.target.value })}
         />
         <input
           type="text"
           placeholder="User"
-          className="min-w-[90px]"
+          className="min-w-[90px] flex-1 sm:flex-none sm:w-40"
           value={filters.userName}
           onChange={(e) => setFilters({ ...filters, userName: e.target.value })}
         />
@@ -120,12 +120,14 @@ function AdminReportsPage() {
           Search
         </button>
       </div>
-      <Table
-        columns={columns}
-        className="mt-2  min-w-[620px]  "
-        dataSource={reportsData}
-        locale={{ emptyText: "No reports available 😔" }}
-      />
+      <div className="overflow-x-auto">
+        <Table
+          columns={columns}
+          className="mt-2  min-w-[620px]  "
+          dataSource={reportsData}
+          locale={{ emptyText: "No reports available 😔" }}
+        />
+      </div>
     </div>
   );
 }

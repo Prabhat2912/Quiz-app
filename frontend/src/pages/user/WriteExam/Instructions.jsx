@@ -5,7 +5,7 @@ function Instructions(props) {
   const { examData, setView, startTimer } = props
   const navigate = useNavigate();
   return (
-    <div className='flex flex-col items-center mt-2 gap-5'>
+    <div className='flex flex-col items-center mt-2 gap-5 max-w-2xl mx-auto w-full'>
       <h1 className='text-2xl underline text-center'>
         Instructions
       </h1>

@@ -175,17 +175,19 @@ function Leaderboard() {
           <b className="nb-data">{user?.xp || 0} XP</b> (Level {user?.level || 1}).
         </div>
       )}
-      <Table
-        dataSource={leaderboard}
-        columns={columns}
-        className="min-w-[250px]"
-        rowKey="userId"
-        rowClassName={(record) =>
-          record.isCurrentUser ? "nb-tint-accent font-semibold" : ""
-        }
-        pagination={{ pageSize: 20 }}
-        locale={{ emptyText: "No leaderboard data available 😔" }}
-      />
+      <div className="overflow-x-auto">
+        <Table
+          dataSource={leaderboard}
+          columns={columns}
+          className="min-w-[250px]"
+          rowKey="userId"
+          rowClassName={(record) =>
+            record.isCurrentUser ? "nb-tint-accent font-semibold" : ""
+          }
+          pagination={{ pageSize: 20 }}
+          locale={{ emptyText: "No leaderboard data available 😔" }}
+        />
+      </div>
     </div>
   );
 }
